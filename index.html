@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Biro Jodoh buat Amar di suruh pak Aji</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:'Inter',sans-serif;
+      background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+      color:#fff;
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+    }
+    h1{margin-bottom:20px}
+    .card{
+      width:320px;
+      max-width:90vw;
+      background:rgba(255,255,255,0.08);
+      backdrop-filter:blur(10px);
+      border-radius:20px;
+      padding:16px;
+      text-align:center;
+      box-shadow:0 20px 40px rgba(0,0,0,.4);
+      transition:transform .3s, opacity .3s;
+    }
+    .photo{
+      width:100%;
+      aspect-ratio:1/1;
+      border-radius:16px;
+      background-size:cover;
+      background-position:center;
+      margin-bottom:12px;
+    }
+    .name{
+      font-size:20px;
+      font-weight:700;
+      margin-bottom:12px;
+    }
+    .actions{
+      display:flex;
+      justify-content:space-around;
+      margin-top:10px;
+    }
+    button{
+      width:60px;
+      height:60px;
+      border-radius:50%;
+      border:none;
+      font-size:26px;
+      cursor:pointer;
+      transition:transform .2s;
+    }
+    button:hover{transform:scale(1.1)}
+    .no{background:#ff4d4d}
+    .yes{background:#4dff88}
+  </style>
+</head>
+<body>
+
+<h1>💘 Swipe Jodoh</h1>
+
+<div class="card" id="card">
+  <div class="photo" id="photo"></div>
+  <div class="name" id="name"></div>
+
+  <div class="actions">
+    <button class="no" onclick="swipe(false)">✖</button>
+    <button class="yes" onclick="swipe(true)">❤</button>
+  </div>
+</div>
+
+<script>
+  const members = [
+    {name:'Ayu', photo:'https://i.pravatar.cc/400?img=47'},
+    {name:'Dina', photo:'https://i.pravatar.cc/400?img=32'},
+    {name:'Sari', photo:'https://i.pravatar.cc/400?img=12'},
+    {name:'Budi', photo:'https://i.pravatar.cc/400?img=52'},
+    {name:'Andi', photo:'https://i.pravatar.cc/400?img=14'},
+  ];
+
+  let index = 0;
+
+  const photoEl = document.getElementById('photo');
+  const nameEl  = document.getElementById('name');
+  const card    = document.getElementById('card');
+
+  function render(){
+    if(index >= members.length){
+      card.innerHTML = '<h2>🎉 Tidak ada profil lagi</h2>';
+      return;
+    }
+    photoEl.style.backgroundImage = `url('${members[index].photo}')`;
+    nameEl.textContent = members[index].name;
+    card.style.transform = 'translateX(0)';
+    card.style.opacity = 1;
+  }
+
+  function swipe(like){
+    card.style.transform = like ? 'translateX(200px)' : 'translateX(-200px)';
+    card.style.opacity = 0;
+    setTimeout(()=>{
+      index++;
+      render();
+    },300);
+  }
+
+  render();
+</script>
+
+</body>
+</html>
