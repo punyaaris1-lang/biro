@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Creator Pro Split Scene V3</title>
+<title>Creator Pro Split Scene V4</title>
 
 <style>
 body {
@@ -15,7 +15,7 @@ padding:15px;
 
 textarea {
 width:100%;
-height:160px;
+height:170px;
 background:#161b22;
 color:white;
 border:1px solid #30363d;
@@ -23,16 +23,25 @@ border-radius:8px;
 padding:10px;
 }
 
-button {
+select, button {
 width:100%;
 padding:12px;
 margin-top:10px;
 border:none;
 border-radius:8px;
+font-size:15px;
+font-weight:bold;
+}
+
+select {
+background:#161b22;
+color:white;
+border:1px solid #30363d;
+}
+
+button {
 background:#238636;
 color:white;
-font-size:16px;
-font-weight:bold;
 }
 
 .box {
@@ -40,7 +49,7 @@ background:#161b22;
 border:1px solid #30363d;
 border-radius:8px;
 padding:10px;
-margin-top:10px;
+margin-top:12px;
 }
 
 .title {
@@ -48,16 +57,34 @@ font-weight:bold;
 color:#58a6ff;
 margin-bottom:5px;
 }
+
+.copyBtn {
+margin-top:6px;
+padding:8px;
+background:#30363d;
+border:none;
+border-radius:6px;
+color:white;
+width:100%;
+}
 </style>
 </head>
 
 <body>
 
-<h2>🎬 Creator Pro Split Scene V3</h2>
+<h2>🎬 Creator Pro Split Scene V4</h2>
 
 <textarea id="inputText" placeholder="Paste cerpen (pisahkan paragraf dengan ENTER)..."></textarea>
 
-<button onclick="generate()">GENERATE SCENE</button>
+<select id="mode">
+<option value="30">⚡ Reels Cepat (30 detik)</option>
+<option value="45" selected>🔥 Viral Mode (45 detik)</option>
+<option value="60">🎥 Story Mode (60 detik)</option>
+</select>
+
+<button onclick="generate()">GENERATE SCENE PRO</button>
+
+<button onclick="copyAll()">📋 COPY ALL (CANVA)</button>
 
 <div id="output"></div>
 
@@ -77,6 +104,8 @@ alert("Minimal 5 paragraf");
 return;
 }
 
+let mode = document.getElementById("mode").value;
+
 let hook = paras[0];
 let scene1 = paras.slice(1,3).join(" ");
 let scene2 = paras.slice(3,5).join(" ");
@@ -84,21 +113,81 @@ let scene3 = paras.slice(5,7).join(" ");
 let scene4 = paras.slice(7,9).join(" ");
 let climax = paras.slice(9).join(" ");
 
-let outputHTML = `
-<div class="box"><div class="title">🔥 HOOK</div>${formatText(hook)}</div>
-<div class="box"><div class="title">🎬 SCENE 1</div>${formatText(scene1)}</div>
-<div class="box"><div class="title">🎬 SCENE 2</div>${formatText(scene2)}</div>
-<div class="box"><div class="title">🎬 SCENE 3</div>${formatText(scene3)}</div>
-<div class="box"><div class="title">🎬 SCENE 4</div>${formatText(scene4)}</div>
-<div class="box"><div class="title">🚀 CLIMAX</div>${formatText(climax)}</div>
-<div class="box"><div class="title">🔔 CTA</div>LANJUT PART 2?</div>
-`;
+let ctaText = (mode == "30") ? "LIKE kalau relate" :
+              (mode == "45") ? "LANJUT PART 2?" :
+              "FOLLOW buat lanjutannya";
 
-document.getElementById("output").innerHTML = outputHTML;
+let scenes = [
+["🔥 HOOK (3s)", hook],
+["🎬 SCENE 1 (6s)", scene1],
+["🎬 SCENE 2 (6s)", scene2],
+["🎬 SCENE 3 (6s)", scene3],
+["🎬 SCENE 4 (6s)", scene4],
+["🚀 CLIMAX (5s)", climax],
+["🔔 CTA (3s)", ctaText]
+];
+
+let html = "";
+
+scenes.forEach((s,i)=>{
+let formatted = formatTypewriter(s[1]);
+html += `
+<div class="box">
+<div class="title">${s[0]}</div>
+<div id="scene${i}">${formatted}</div>
+<button class="copyBtn" onclick="copyScene('scene${i}')">COPY SCENE</button>
+</div>
+`;
+});
+
+document.getElementById("output").innerHTML = html;
 }
 
-function formatText(txt){
-return txt.replace(/\. /g, ".<br>");
+function formatTypewriter(txt){
+let words = txt.split(" ");
+let lines = [];
+let line = "";
+
+words.forEach(word=>{
+if((line + word).length > 28){
+lines.push(line.trim());
+line = word + " ";
+}else{
+line += word + " ";
+}
+});
+
+lines.push(line.trim());
+
+return lines.join("<br>");
+}
+
+function copyScene(id){
+let el = document.getElementById(id);
+let temp = document.createElement("textarea");
+temp.value = el.innerText;
+document.body.appendChild(temp);
+temp.select();
+document.execCommand("copy");
+document.body.removeChild(temp);
+alert("Scene copied");
+}
+
+function copyAll(){
+let boxes = document.querySelectorAll("[id^='scene']");
+let allText = "";
+boxes.forEach((b,i)=>{
+allText += "SLIDE " + (i+1) + "\n" + b.innerText + "\n\n";
+});
+
+let temp = document.createElement("textarea");
+temp.value = allText;
+document.body.appendChild(temp);
+temp.select();
+document.execCommand("copy");
+document.body.removeChild(temp);
+
+alert("ALL SCENE COPIED");
 }
 </script>
 
