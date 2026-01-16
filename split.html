@@ -2,87 +2,103 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>Scene Splitter FB Video</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Creator Pro Split Scene V3</title>
+
 <style>
 body {
-  font-family: Arial, sans-serif;
-  background:#0e0e0e;
-  color:#fff;
-  padding:15px;
+font-family: Arial;
+background:#0d1117;
+color:white;
+padding:15px;
 }
 
 textarea {
-  width:100%;
-  height:180px;
-  border-radius:8px;
-  padding:10px;
-  border:none;
-  outline:none;
-}
-
-input, button {
-  margin-top:10px;
-  padding:10px;
-  border-radius:6px;
-  border:none;
-  width:100%;
+width:100%;
+height:160px;
+background:#161b22;
+color:white;
+border:1px solid #30363d;
+border-radius:8px;
+padding:10px;
 }
 
 button {
-  background:#00ffae;
-  font-weight:bold;
+width:100%;
+padding:12px;
+margin-top:10px;
+border:none;
+border-radius:8px;
+background:#238636;
+color:white;
+font-size:16px;
+font-weight:bold;
 }
 
-.output {
-  margin-top:15px;
-  background:#111;
-  padding:10px;
-  border-radius:8px;
-  white-space:pre-line;
+.box {
+background:#161b22;
+border:1px solid #30363d;
+border-radius:8px;
+padding:10px;
+margin-top:10px;
+}
+
+.title {
+font-weight:bold;
+color:#58a6ff;
+margin-bottom:5px;
 }
 </style>
 </head>
 
 <body>
 
-<h3>🎬 Auto Scene Splitter</h3>
+<h2>🎬 Creator Pro Split Scene V3</h2>
 
-<textarea id="story" placeholder="Paste cerpen di sini..."></textarea>
+<textarea id="inputText" placeholder="Paste cerpen (pisahkan paragraf dengan ENTER)..."></textarea>
 
-<input type="number" id="limit" value="120" placeholder="Max karakter per scene">
+<button onclick="generate()">GENERATE SCENE</button>
 
-<button onclick="splitText()">SPLIT SCENE</button>
-
-<div class="output" id="result"></div>
+<div id="output"></div>
 
 <script>
-function splitText() {
-  const text = document.getElementById("story").value;
-  const limit = document.getElementById("limit").value;
-  const sentences = text.split(/(?<=[.!?])\s+/);
+function generate(){
 
-  let scenes = [];
-  let buffer = "";
+let text = document.getElementById("inputText").value.trim();
+if(!text){
+alert("Masukin cerpen dulu");
+return;
+}
 
-  sentences.forEach(s => {
-    if ((buffer + s).length <= limit) {
-      buffer += s + " ";
-    } else {
-      scenes.push(buffer.trim());
-      buffer = s + " ";
-    }
-  });
+let paras = text.split(/\n+/).filter(p => p.trim() !== "");
 
-  if (buffer.trim()) scenes.push(buffer.trim());
+if(paras.length < 5){
+alert("Minimal 5 paragraf");
+return;
+}
 
-  let output = "";
-  scenes.forEach((s, i) => {
-    output += "SCENE " + (i+1) + ":\n";
-    output += s + "\n\n";
-  });
+let hook = paras[0];
+let scene1 = paras.slice(1,3).join(" ");
+let scene2 = paras.slice(3,5).join(" ");
+let scene3 = paras.slice(5,7).join(" ");
+let scene4 = paras.slice(7,9).join(" ");
+let climax = paras.slice(9).join(" ");
 
-  document.getElementById("result").innerText = output;
+let outputHTML = `
+<div class="box"><div class="title">🔥 HOOK</div>${formatText(hook)}</div>
+<div class="box"><div class="title">🎬 SCENE 1</div>${formatText(scene1)}</div>
+<div class="box"><div class="title">🎬 SCENE 2</div>${formatText(scene2)}</div>
+<div class="box"><div class="title">🎬 SCENE 3</div>${formatText(scene3)}</div>
+<div class="box"><div class="title">🎬 SCENE 4</div>${formatText(scene4)}</div>
+<div class="box"><div class="title">🚀 CLIMAX</div>${formatText(climax)}</div>
+<div class="box"><div class="title">🔔 CTA</div>LANJUT PART 2?</div>
+`;
+
+document.getElementById("output").innerHTML = outputHTML;
+}
+
+function formatText(txt){
+return txt.replace(/\. /g, ".<br>");
 }
 </script>
 
