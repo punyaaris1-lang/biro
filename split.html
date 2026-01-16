@@ -3,85 +3,105 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>Creator Pro V9 Mobile Fix</title>
+<title>Creator Pro V11: Render System</title>
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@700&family=Poppins:wght@600&display=swap');
 
     body {
         margin: 0;
-        background: #0f0f0f;
+        background: #111;
         color: white;
         font-family: 'Poppins', sans-serif;
         display: flex;
         flex-direction: column;
         height: 100vh;
-        overflow: hidden; /* Kunci scroll body */
+        overflow: hidden;
     }
 
-    /* --- AREA PREVIEW (CANVAS) --- */
-    #preview-area {
+    /* --- LAYAR UTAMA --- */
+    #viewport {
         flex: 1;
-        background: #000;
-        display: flex;
-        align-items: center;
-        justify-content: center;
         position: relative;
-        border-bottom: 2px solid #333;
+        background: black;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
     }
 
     canvas {
         max-width: 100%;
         max-height: 100%;
-        box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        box-shadow: 0 0 30px rgba(0,0,0,0.5);
     }
 
-    /* Indikator REC */
-    #rec-badge {
+    /* --- OVERLAY RENDER (LOADING SCREEN) --- */
+    #render-overlay {
         position: absolute;
-        top: 20px; right: 20px;
-        background: red;
-        color: white;
-        padding: 5px 12px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: bold;
-        display: none;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.95);
         z-index: 99;
-        box-shadow: 0 0 10px red;
-        animation: pulse 1s infinite;
+        display: none; /* Default Hidden */
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
     }
-    @keyframes pulse { 50% { opacity: 0.5; } }
+
+    .spinner {
+        width: 50px; height: 50px;
+        border: 5px solid #333;
+        border-top: 5px solid #00ff88;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 20px;
+    }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+
+    .progress-box {
+        width: 80%;
+        height: 10px;
+        background: #333;
+        border-radius: 10px;
+        overflow: hidden;
+        margin-top: 10px;
+    }
+    #progress-bar {
+        width: 0%;
+        height: 100%;
+        background: #00ff88;
+        transition: width 0.3s;
+    }
 
     /* --- KONTROL PANEL --- */
     #controls {
-        height: 45vh; /* Setengah layar */
-        background: #1a1a1a;
-        padding: 15px;
+        height: 45vh;
+        background: #1e1e1e;
+        padding: 20px;
         box-sizing: border-box;
         display: flex;
         flex-direction: column;
         gap: 12px;
+        border-top: 1px solid #333;
         overflow-y: auto;
     }
 
-    .label { font-size: 12px; color: #aaa; margin-bottom: 4px; display:block; }
-
     textarea {
         width: 100%;
-        height: 80px;
-        background: #252525;
-        color: #fff;
+        height: 100px;
+        background: #2a2a2a;
+        color: #ddd;
         border: 1px solid #444;
         border-radius: 8px;
-        padding: 10px;
+        padding: 12px;
         font-family: 'Courier Prime', monospace;
-        font-size: 14px;
         resize: none;
         box-sizing: border-box;
     }
+    textarea:focus { border-color: #00ff88; outline: none; }
 
-    .row { display: flex; gap: 10px; }
-
+    .btn-group { display: flex; gap: 10px; }
+    
     button {
         padding: 15px;
         border: none;
@@ -91,16 +111,13 @@
         font-size: 14px;
         cursor: pointer;
         width: 100%;
+        transition: transform 0.1s;
     }
-    
-    button:active { transform: scale(0.96); }
+    button:active { transform: scale(0.98); }
 
-    .btn-blue { background: #2980b9; }
-    .btn-red { background: #c0392b; }
-    .btn-dark { background: #333; border: 1px solid #555; }
-    .btn-stop { background: #e74c3c; animation: blink-btn 1s infinite; }
-
-    @keyframes blink-btn { 50% { background: #c0392b; } }
+    .btn-preview { background: #3498db; } /* Biru */
+    .btn-render { background: #27ae60; } /* Hijau */
+    .btn-bg { background: #444; margin-bottom: 5px; }
 
     .hidden { display: none !important; }
 
@@ -108,268 +125,289 @@
 </head>
 <body>
 
-<div id="preview-area">
-    <div id="rec-badge">● REC</div>
-    <canvas id="mainCanvas" width="720" height="900"></canvas>
+<div id="viewport">
+    <canvas id="mainCanvas" width="720" height="1280"></canvas>
+
+    <div id="render-overlay">
+        <div class="spinner"></div>
+        <h2 style="color:#00ff88; margin:0;">RENDERING...</h2>
+        <p style="color:#aaa; font-size:12px;">Mohon jangan tutup tab atau matikan layar</p>
+        <div class="progress-box">
+            <div id="progress-bar"></div>
+        </div>
+        <p id="progress-text" style="margin-top:5px; font-size:14px;">0%</p>
+    </div>
 </div>
 
 <div id="controls">
+    <div style="font-size:12px; color:#888; margin-bottom:5px;">1. EDITOR NASKAH (Enter = Ganti Slide)</div>
+    <textarea id="storyInput" placeholder="Tulis ceritamu di sini..."></textarea>
 
-    <div>
-        <span class="label">1. Tulis Cerita (Enter untuk ganti slide)</span>
-        <textarea id="storyInput" placeholder="Malam itu sepi...
-(Tekan Enter)
-Aku mendengar suara langkah...
-(Tekan Enter)
-Ternyata dia datang..."></textarea>
+    <div style="font-size:12px; color:#888; margin-bottom:5px;">2. VISUAL</div>
+    <button class="btn-bg" onclick="document.getElementById('bgInput').click()">📸 Ganti Background</button>
+    <input type="file" id="bgInput" hidden accept="image/*" onchange="loadBG(this)">
+
+    <div style="font-size:12px; color:#888; margin-bottom:5px; margin-top:10px;">3. EKSEKUSI</div>
+    <div class="btn-group">
+        <button class="btn-preview" onclick="playPreview()">▶ PREVIEW AJA</button>
+        <button class="btn-render" onclick="startRender()">⚡ GENERATE & SAVE</button>
     </div>
-
-    <div class="row">
-        <button class="btn-dark" onclick="document.getElementById('bgInput').click()">📸 Ganti Foto Background</button>
-        <input type="file" id="bgInput" accept="image/*" hidden onchange="loadBackground(this)">
-    </div>
-
-    <span class="label">2. Aksi (Musik Otomatis Nyala)</span>
-    <div class="row" id="action-buttons">
-        <button class="btn-blue" onclick="previewAction()">▶ Cek Dulu</button>
-        <button class="btn-red" onclick="startRecording()">● REKAM VIDEO</button>
-    </div>
-    
-    <button id="stop-btn" class="btn-stop hidden" onclick="stopRecording()">■ STOP REKAM (Simpan)</button>
-
 </div>
 
 <script>
-    // === CONFIG ===
+    // === SYSTEM SETUP ===
     const canvas = document.getElementById('mainCanvas');
-    const ctx = canvas.getContext('2d');
-    
-    // State
+    const ctx = canvas.getContext('2d', { alpha: false });
+    const progressBar = document.getElementById('progress-bar');
+    const progressText = document.getElementById('progress-text');
+    const renderOverlay = document.getElementById('render-overlay');
+
+    // State Variables
     let scenes = [];
     let currentSceneIdx = 0;
-    let charIdx = 0;
-    let textToDraw = "";
-    let isTyping = false;
-    let bgImage = null; // Object Image
-    let animationId;
+    let charDisplayCount = 0;
+    let isRunning = false;
+    let isRendering = false; // Mode Rekam atau Cuma Nonton
+    let isPaused = false;
     
-    // Recording State
+    // Time Logic
+    let lastTime = 0;
+    let charTimer = 0;
+    let pauseTimer = 0;
+    const charSpeed = 50; // ms per huruf
+    const readDelay = 2000; // ms jeda baca
+
+    // Assets
+    let bgImage = null;
+    let animationId;
+
+    // Audio & Recorder
+    let audioCtx, destNode, oscNodes = [];
     let mediaRecorder;
     let chunks = [];
-    let audioCtx, destNode, oscNodes = []; // Untuk Musik
 
-    // Default Teks saat load
+    // --- INITIAL DRAW ---
     ctx.fillStyle = "black";
     ctx.fillRect(0,0, canvas.width, canvas.height);
-    ctx.fillStyle = "white";
-    ctx.font = "bold 30px Arial";
+    ctx.fillStyle = "#333";
+    ctx.font = "30px Arial";
     ctx.textAlign = "center";
-    ctx.fillText("Siap Digunakan", canvas.width/2, canvas.height/2);
+    ctx.fillText("READY", canvas.width/2, canvas.height/2);
 
-    // === 1. LOGIKA BACKGROUND ===
-    function loadBackground(input) {
-        if(input.files && input.files[0]){
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const img = new Image();
-                img.onload = () => {
-                    bgImage = img;
-                    drawFrame(); // Refresh canvas
-                };
-                img.src = e.target.result;
+    // --- FUNCTION: LOAD BG ---
+    function loadBG(input) {
+        if(input.files && input.files[0]) {
+            const img = new Image();
+            img.onload = () => {
+                bgImage = img;
+                if(!isRunning) drawRender(); // Refresh preview kalau lagi diam
             };
-            reader.readAsDataURL(input.files[0]);
+            img.src = URL.createObjectURL(input.files[0]);
         }
     }
 
-    // === 2. ENGINE GAMBAR (CANVAS LOOP) ===
-    function drawFrame() {
-        // 1. Gambar Background
-        if(bgImage) {
-            // Draw image full cover (simulasi object-fit: cover)
-            const ratio = Math.max(canvas.width / bgImage.width, canvas.height / bgImage.height);
-            const centerShift_x = (canvas.width - bgImage.width * ratio) / 2;
-            const centerShift_y = (canvas.height - bgImage.height * ratio) / 2;
-            ctx.drawImage(bgImage, 0, 0, bgImage.width, bgImage.height, centerShift_x, centerShift_y, bgImage.width * ratio, bgImage.height * ratio);
-        } else {
-            ctx.fillStyle = "#111";
-            ctx.fillRect(0,0, canvas.width, canvas.height);
-        }
-
-        // 2. Gelapkan Background (Overlay)
-        ctx.fillStyle = "rgba(0,0,0,0.5)";
-        ctx.fillRect(0,0, canvas.width, canvas.height);
-
-        // 3. Gambar Teks (Wrap Text Manual)
-        ctx.fillStyle = "white";
-        ctx.font = "bold 40px 'Courier Prime', monospace";
-        ctx.textAlign = "left";
-        ctx.textBaseline = "top";
-        
-        // Efek Shadow Teks
-        ctx.shadowColor = "black";
-        ctx.shadowBlur = 4;
-        ctx.shadowOffsetX = 2;
-        ctx.shadowOffsetY = 2;
-
-        wrapText(ctx, textToDraw + (isTyping ? "|" : ""), 50, canvas.height/2 - 100, 620, 55);
-        
-        // Reset shadow
-        ctx.shadowColor = "transparent";
-    }
-
-    // Fungsi Pembungkus Teks (Supaya gak nabrak kanan)
-    function wrapText(context, text, x, y, maxWidth, lineHeight) {
-        let words = text.split(' ');
-        let line = '';
-        let startY = y;
-
-        for(let n = 0; n < words.length; n++) {
-            let testLine = line + words[n] + ' ';
-            let metrics = context.measureText(testLine);
-            let testWidth = metrics.width;
-            if (testWidth > maxWidth && n > 0) {
-                context.fillText(line, x, y);
-                line = words[n] + ' ';
-                y += lineHeight;
-            } else {
-                line = testLine;
-            }
-        }
-        context.fillText(line, x, y);
-    }
-
-    // === 3. ENGINE KETIK (TYPING) ===
-    function prepareStory() {
-        const raw = document.getElementById('storyInput').value;
-        if(!raw.trim()) { alert("Isi cerita dulu!"); return false; }
-        scenes = raw.split(/\n+/).filter(x => x.trim() !== "");
-        currentSceneIdx = 0;
-        return true;
-    }
-
-    function playSequence(onFinish) {
-        if(currentSceneIdx >= scenes.length) {
-            if(onFinish) onFinish();
-            return;
-        }
-
-        let fullText = scenes[currentSceneIdx];
-        charIdx = 0;
-        isTyping = true;
-        
-        let typeInterval = setInterval(() => {
-            textToDraw = fullText.substring(0, charIdx);
-            charIdx++;
-            drawFrame(); // Update layar
-
-            if(charIdx > fullText.length) {
-                clearInterval(typeInterval);
-                isTyping = false;
-                drawFrame(); // Hapus kursor
-
-                // Jeda baca 2 detik
-                setTimeout(() => {
-                    currentSceneIdx++;
-                    playSequence(onFinish);
-                }, 2000); 
-            }
-        }, 50); // Kecepatan ketik
-    }
-
-    // === 4. AUDIO ENGINE (MUSIK STORY) ===
-    function startMusic() {
+    // --- FUNCTION: MUSIC ENGINE (Sad Piano) ---
+    function initAudio(forRecording = false) {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        destNode = audioCtx.createMediaStreamDestination(); // Output khusus buat rekaman
         
-        // Bikin Chord Ambient (C Minor Pad)
-        const freqs = [130.81, 155.56, 196.00]; // C3, Eb3, G3
+        // Kalau recording, output diarahkan ke MediaStreamDestination
+        // Kalau preview, output diarahkan ke Speaker biasa
+        let outputNode = audioCtx.destination;
+        
+        if(forRecording) {
+            destNode = audioCtx.createMediaStreamDestination();
+            outputNode = destNode; // Kita butuh ini buat masuk ke video
+        }
+
+        const freqs = [130.81, 155.56, 196.00, 65.41]; // C Minor
         
         freqs.forEach(f => {
-            let osc = audioCtx.createOscillator();
-            let gain = audioCtx.createGain();
-            
-            osc.type = 'sine'; // Suara halus
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
             osc.frequency.value = f;
-            
-            gain.gain.value = 0.1; // Volume kecil biar background
+            gain.gain.value = 0.08;
             
             osc.connect(gain);
-            gain.connect(audioCtx.destination); // Ke speaker HP
-            gain.connect(destNode); // Ke rekaman video
+            gain.connect(outputNode);
             
+            // Kalau recording, kita juga mau denger suaranya (optional, tapi enak buat monitoring)
+            if(forRecording) gain.connect(audioCtx.destination); 
+
             osc.start();
             oscNodes.push(osc);
         });
     }
 
-    function stopMusic() {
-        if(oscNodes) {
-            oscNodes.forEach(o => o.stop());
-            oscNodes = [];
-        }
+    function stopAudio() {
+        if(oscNodes) oscNodes.forEach(o => o.stop());
         if(audioCtx) audioCtx.close();
+        oscNodes = [];
     }
 
-    // === 5. FUNGSI TOMBOL ===
-    function previewAction() {
-        if(!prepareStory()) return;
-        textToDraw = "";
-        playSequence(() => { textToDraw = "--- PREVIEW SELESAI ---"; drawFrame(); });
+    // --- CORE ENGINE (GAME LOOP) ---
+    function gameLoop(timestamp) {
+        if(!isRunning) return;
+
+        if (!lastTime) lastTime = timestamp;
+        const deltaTime = timestamp - lastTime;
+        lastTime = timestamp;
+
+        updateLogic(deltaTime);
+        drawRender();
+
+        if(isRunning) requestAnimationFrame(gameLoop);
     }
 
-    function startRecording() {
-        if(!prepareStory()) return;
+    function updateLogic(dt) {
+        if(currentSceneIdx >= scenes.length) {
+            finishProcess(); // SELESAI
+            return;
+        }
 
-        // 1. Mulai Musik & Canvas Stream
-        startMusic();
+        const currentText = scenes[currentSceneIdx];
         
-        // GABUNGKAN STREAM: Visual Canvas + Audio Musik
-        const canvasStream = canvas.captureStream(30); // 30 FPS
+        // Update Progress Bar (Estimasi Kasar)
+        if(isRendering) {
+            let totalProgress = (currentSceneIdx / scenes.length) * 100;
+            let subProgress = (charDisplayCount / currentText.length) * (100 / scenes.length);
+            let finalPerc = Math.min(Math.round(totalProgress + subProgress), 99);
+            progressBar.style.width = finalPerc + "%";
+            progressText.innerText = finalPerc + "%";
+        }
+
+        if(!isPaused) {
+            // Logic Ngetik
+            charTimer += dt;
+            if(charTimer >= charSpeed) {
+                charDisplayCount++;
+                charTimer = 0;
+                if(charDisplayCount > currentText.length) {
+                    isPaused = true; 
+                    pauseTimer = 0;
+                }
+            }
+        } else {
+            // Logic Jeda Baca
+            pauseTimer += dt;
+            if(pauseTimer >= readDelay) {
+                isPaused = false;
+                currentSceneIdx++;
+                charDisplayCount = 0;
+            }
+        }
+    }
+
+    function drawRender() {
+        // 1. BG
+        ctx.fillStyle = "black";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        if(bgImage) {
+            const ratio = Math.max(canvas.width / bgImage.width, canvas.height / bgImage.height);
+            const cx = (canvas.width - bgImage.width * ratio) / 2;
+            const cy = (canvas.height - bgImage.height * ratio) / 2;
+            ctx.drawImage(bgImage, 0, 0, bgImage.width, bgImage.height, cx, cy, bgImage.width * ratio, bgImage.height * ratio);
+        }
+
+        // 2. Overlay Gelap
+        ctx.fillStyle = "rgba(0,0,0,0.6)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // 3. Teks
+        if(scenes[currentSceneIdx]) {
+            const fullText = scenes[currentSceneIdx];
+            const textToShow = fullText.substring(0, charDisplayCount);
+            
+            ctx.fillStyle = "white";
+            ctx.font = "bold 42px 'Courier Prime', monospace";
+            ctx.textAlign = "left";
+            ctx.textBaseline = "top";
+            
+            wrapText(ctx, textToShow + (isPaused ? "" : "|"), 60, canvas.height/2 - 100, 600, 55);
+        }
+    }
+
+    function wrapText(context, text, x, y, maxWidth, lineHeight) {
+        const words = text.split(' ');
+        let line = '';
+        for(let n = 0; n < words.length; n++) {
+            const testLine = line + words[n] + ' ';
+            const metrics = context.measureText(testLine);
+            if (metrics.width > maxWidth && n > 0) {
+                context.fillText(line, x, y);
+                line = words[n] + ' ';
+                y += lineHeight;
+            } else { line = testLine; }
+        }
+        context.fillText(line, x, y);
+    }
+
+    // --- CONTROLS ---
+
+    function prepare() {
+        const raw = document.getElementById('storyInput').value;
+        if(!raw.trim()) { alert("Ceritanya mana?"); return false; }
+        scenes = raw.split(/\n+/).filter(x => x.trim() !== "");
+        currentSceneIdx = 0;
+        charDisplayCount = 0;
+        lastTime = 0;
+        isRunning = true;
+        isPaused = false;
+        return true;
+    }
+
+    // BUTTON 1: PREVIEW (Cuma Nonton)
+    function playPreview() {
+        if(!prepare()) return;
+        isRendering = false; // Mode Preview
+        initAudio(false); // Audio ke speaker
+        requestAnimationFrame(gameLoop);
+    }
+
+    // BUTTON 2: RENDER (Generate & Download)
+    function startRender() {
+        if(!prepare()) return;
+        isRendering = true; // Mode Render
+
+        // UI Changes
+        renderOverlay.style.display = 'flex'; // Tutup layar dengan loading screen
+        progressBar.style.width = "0%";
+        progressText.innerText = "0%";
+
+        // Setup Audio & Video Stream
+        initAudio(true); // Audio ke recorder
+        
+        const canvasStream = canvas.captureStream(30); // 30 FPS Stabil
         const audioStream = destNode.stream;
-        
-        // Mix Audio + Video
-        const combinedTracks = [
-            ...canvasStream.getVideoTracks(),
-            ...audioStream.getAudioTracks()
-        ];
-        const finalStream = new MediaStream(combinedTracks);
+        const combined = new MediaStream([...canvasStream.getVideoTracks(), ...audioStream.getAudioTracks()]);
 
-        // 2. Setup Recorder
-        mediaRecorder = new MediaRecorder(finalStream, {
-            mimeType: 'video/webm;codecs=vp8' // Format paling aman buat Android
+        mediaRecorder = new MediaRecorder(combined, {
+            mimeType: 'video/webm;codecs=vp8',
+            videoBitsPerSecond: 3000000 // 3 Mbps High Quality
         });
 
         chunks = [];
-        mediaRecorder.ondataavailable = e => {
-            if(e.data.size > 0) chunks.push(e.data);
-        };
-
+        mediaRecorder.ondataavailable = e => { if(e.data.size > 0) chunks.push(e.data); };
         mediaRecorder.onstop = saveVideo;
         mediaRecorder.start();
 
-        // UI
-        document.getElementById('action-buttons').classList.add('hidden');
-        document.getElementById('stop-btn').classList.remove('hidden');
-        document.getElementById('rec-badge').style.display = 'block';
-
-        // 3. Jalankan Animasi
-        textToDraw = "";
-        playSequence(() => {
-            stopRecording(); // Stop otomatis pas cerita habis
-        });
+        // Start Loop
+        requestAnimationFrame(gameLoop);
     }
 
-    function stopRecording() {
-        if(mediaRecorder && mediaRecorder.state !== 'inactive') {
-            mediaRecorder.stop();
-        }
-        stopMusic();
+    function finishProcess() {
+        isRunning = false;
+        stopAudio();
         
-        // Reset UI
-        document.getElementById('action-buttons').classList.remove('hidden');
-        document.getElementById('stop-btn').classList.add('hidden');
-        document.getElementById('rec-badge').style.display = 'none';
+        if(isRendering) {
+            // Kalau mode render, stop recorder
+            if(mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+            renderOverlay.style.display = 'none'; // Buka loading screen
+            alert("Selesai! File sedang didownload.");
+        } else {
+            alert("Preview Selesai.");
+        }
     }
 
     function saveVideo() {
@@ -379,20 +417,11 @@ Ternyata dia datang..."></textarea>
         document.body.appendChild(a);
         a.style.display = 'none';
         a.href = url;
-        
-        // Nama file unik
-        const date = new Date();
-        a.download = `Story_${date.getHours()}${date.getMinutes()}.webm`;
-        
+        a.download = `Story_Result_${Date.now()}.webm`;
         a.click();
         window.URL.revokeObjectURL(url);
-        alert("Video tersimpan! Cek Galeri/Download.");
     }
 
-    // Init awal
-    drawFrame();
-
 </script>
-
 </body>
 </html>
