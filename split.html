@@ -2,274 +2,428 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Creator Pro V5.3 Media Mode</title>
-
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>FB Pro Video Creator V7.0</title>
 <style>
-body{
-margin:0;
-background:black;
-color:white;
-font-family:Arial;
-display:flex;
-flex-direction:column;
-height:100vh;
-}
+    @import url('https://fonts.googleapis.com/css2?family=Anton&family=Poppins:wght@400;700&display=swap');
 
-#control{
-background:#111;
-padding:10px;
-}
+    :root {
+        --fb-blue: #1877F2;
+        --fb-bg: #F0F2F5;
+        --panel: #ffffff;
+        --text: #050505;
+        --highlight: #FFE600; /* Warna Viral FB */
+    }
 
-textarea{
-width:100%;
-height:110px;
-background:#000;
-color:white;
-border:1px solid #333;
-border-radius:6px;
-padding:8px;
-}
+    body {
+        margin: 0;
+        background: #e9ebee;
+        color: #1c1e21;
+        font-family: 'Poppins', sans-serif;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        overflow: hidden;
+    }
 
-select,input,button{
-width:100%;
-padding:10px;
-margin-top:6px;
-border-radius:6px;
-border:none;
-font-size:14px;
-}
+    /* --- PREVIEW AREA --- */
+    #preview-container {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #222;
+        position: relative;
+        overflow: hidden;
+        padding: 10px;
+    }
 
-button{
-background:#16a34a;
-color:white;
-font-weight:bold;
-}
+    #player {
+        width: 100%;
+        max-width: 400px;
+        aspect-ratio: 4/5; /* Default FB Feed */
+        background-color: #000;
+        background-position: center;
+        background-size: cover;
+        background-repeat: no-repeat;
+        display: flex;
+        align-items: center; /* Default center vertical */
+        justify-content: center;
+        text-align: center;
+        position: relative;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        overflow: hidden;
+    }
 
-#player{
-flex:1;
-display:flex;
-align-items:center;
-justify-content:center;
-text-align:center;
-padding:20px;
-font-size:28px;
-line-height:1.4;
-background:black;
-background-size:cover;
-background-position:center;
-}
+    /* Overlay Gelap (Supaya tulisan kebaca) */
+    #player-overlay {
+        position: absolute;
+        top:0; left:0; right:0; bottom:0;
+        background: rgba(0,0,0,0.4);
+        z-index: 1;
+    }
+
+    /* AREA TEKS */
+    #text-content {
+        position: relative;
+        z-index: 2;
+        width: 85%; /* Margin kiri kanan aman */
+        font-family: 'Poppins', sans-serif;
+        font-weight: 700;
+        font-size: 26px;
+        line-height: 1.4;
+        color: white;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.9);
+        white-space: pre-wrap;
+    }
+
+    /* STYLE VIRAL (Highlight Kuning) */
+    .viral-mode #text-content span {
+        background-color: var(--highlight);
+        color: black;
+        padding: 4px 8px;
+        box-decoration-break: clone;
+        -webkit-box-decoration-break: clone;
+        text-shadow: none;
+        font-family: 'Anton', sans-serif; /* Font tebal ala news */
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+
+    /* SAFE ZONE (Garis Bantu UI FB) */
+    #safe-zone {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        border: 2px dashed rgba(255, 0, 0, 0.5);
+        z-index: 99;
+        pointer-events: none;
+        display: none;
+    }
+    /* Area tombol FB di kanan & bawah */
+    #safe-zone::after {
+        content: 'JANGAN TULIS DI SINI (Tombol FB)';
+        position: absolute;
+        bottom: 80px; right: 10px;
+        width: 60px; height: 200px;
+        background: rgba(255,0,0,0.2);
+        color: white;
+        font-size: 10px;
+        display: flex;
+        align-items: center;
+        text-align: center;
+    }
+
+    /* COUNTDOWN */
+    #countdown-layer {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.9);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 100px;
+        font-weight: 900;
+        color: var(--fb-blue);
+        z-index: 999;
+        display: none;
+        font-family: 'Anton', sans-serif;
+    }
+
+    /* --- CONTROLS --- */
+    #controls {
+        background: var(--panel);
+        padding: 15px;
+        border-top: 1px solid #ccc;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        max-height: 50vh;
+        overflow-y: auto;
+        box-shadow: 0 -4px 10px rgba(0,0,0,0.1);
+    }
+
+    .row { display: flex; gap: 10px; align-items: flex-end;}
+    
+    label { font-size: 11px; font-weight: bold; color: #555; display:block; margin-bottom: 2px;}
+
+    textarea {
+        background: #f0f2f5;
+        color: #333;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 10px;
+        height: 50px;
+        width: 100%;
+        box-sizing: border-box;
+        font-family: inherit;
+    }
+
+    select, button, input[type="file"] {
+        width: 100%;
+        padding: 10px;
+        border-radius: 6px;
+        border: none;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 13px;
+    }
+
+    select { background: #e4e6eb; color: #050505; }
+    
+    .btn-fb { background: #1877F2; color: white; }
+    .btn-green { background: #42b72a; color: white; }
+    .btn-gray { background: #e4e6eb; color: black; }
+
+    /* Checkbox Styles */
+    .checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 12px;
+        background: #eee;
+        padding: 5px 10px;
+        border-radius: 20px;
+    }
+    input[type="checkbox"] { width: auto; }
+
 </style>
 </head>
-
 <body>
 
-<div id="control">
+<div id="preview-container">
+    <div id="player">
+        <div id="player-overlay"></div>
+        <div id="text-content"><span>PREVIEW TEKS FB PRO</span></div>
+        <div id="safe-zone"></div>
+    </div>
+    <div id="countdown-layer">3</div>
+</div>
 
-<textarea id="textInput" placeholder="Paste cerita..."></textarea>
+<div id="controls">
 
-<select onchange="changeBG(this.value)">
-<option value="black">Hitam Cinematic</option>
-<option value="gradient">Gradient Gelap</option>
-</select>
+    <textarea id="textInput" placeholder="Tulis caption viral di sini... (Enter untuk ganti slide)"></textarea>
 
-<input type="file" accept="image/*" onchange="uploadBG(this)">
+    <div class="row">
+        <div style="flex:1">
+            <label>Format Video</label>
+            <select onchange="changeRatio(this.value)">
+                <option value="4/5">4:5 (FB Feed/Pro)</option>
+                <option value="1/1">1:1 (Square)</option>
+                <option value="9/16">9:16 (Reels Full)</option>
+            </select>
+        </div>
+        <div style="flex:1">
+            <label>Posisi Gambar</label>
+            <select onchange="changeFit(this.value)">
+                <option value="cover">Full Zoom (Cover)</option>
+                <option value="contain">Masuk Semua (Fit)</option>
+            </select>
+        </div>
+    </div>
 
-<button onclick="generate()">GENERATE</button>
-<button onclick="play()">PLAY</button>
-<button onclick="startRecord()">START RECORD</button>
-<button onclick="stopRecord()">STOP RECORD</button>
+    <div class="row">
+        <div style="flex:1">
+            <label>Style Teks</label>
+            <div class="checkbox-group">
+                <input type="checkbox" id="viralToggle" onchange="toggleViralMode()"> 
+                <label for="viralToggle" style="margin:0; cursor:pointer;">Mode Viral (Kuning)</label>
+            </div>
+        </div>
+        <div style="flex:1">
+            <label>Bantuan</label>
+            <div class="checkbox-group">
+                <input type="checkbox" id="safeZoneToggle" onchange="toggleSafeZone()">
+                <label for="safeZoneToggle" style="margin:0; cursor:pointer;">Cek Safe Zone</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div style="flex:2">
+             <label>Ganti Foto Background</label>
+             <input type="file" accept="image/*" onchange="uploadBG(this)" style="background:#fff; border:1px solid #ddd;">
+        </div>
+        <div style="flex:1">
+             <label>&nbsp;</label>
+             <button class="btn-gray" onclick="resetBG()">Reset BG</button>
+        </div>
+    </div>
+
+    <div class="row" style="margin-top:5px;">
+        <button class="btn-gray" onclick="loadScript()">1. LOAD SCRIPT</button>
+        <button class="btn-fb" onclick="startFBPro()">2. REKAM FB PRO</button>
+    </div>
 
 </div>
 
-<div id="player">READY</div>
-
 <script>
+    // === CORE VARIABLES ===
+    let scenes = [];
+    let currentScene = 0;
+    let charIndex = 0;
+    let typeTimer = null;
+    let mediaRecorder;
+    let recordedChunks = [];
+    let isViral = false;
 
-// ===== STATE =====
+    // === DOM ===
+    const player = document.getElementById('player');
+    const textDiv = document.getElementById('text-content');
+    const countdownEl = document.getElementById('countdown-layer');
+    const safeZone = document.getElementById('safe-zone');
 
-let scenes=[];
-let currentScene=0;
-let charIndex=0;
-let timer=null;
-let paused=false;
+    // === VISUAL SETTINGS ===
+    function changeRatio(val) {
+        player.style.aspectRatio = val;
+        // Penyesuaian lebar agar preview enak dilihat
+        if(val === "9/16") player.style.maxWidth = "300px";
+        else player.style.maxWidth = "400px";
+    }
 
-let mediaRecorder;
-let recordedChunks=[];
+    function changeFit(val) {
+        player.style.backgroundSize = val;
+    }
 
-// ===== BACKGROUND =====
+    function toggleViralMode() {
+        isViral = document.getElementById('viralToggle').checked;
+        if(isViral) player.classList.add('viral-mode');
+        else player.classList.remove('viral-mode');
+    }
 
-function changeBG(mode){
-let p=document.getElementById("player");
+    function toggleSafeZone() {
+        let show = document.getElementById('safeZoneToggle').checked;
+        safeZone.style.display = show ? 'block' : 'none';
+    }
 
-if(mode==="black"){
-p.style.background="black";
-}
-if(mode==="gradient"){
-p.style.background="linear-gradient(120deg,#020024,#090979,#000)";
-}
-}
+    function uploadBG(input) {
+        if (input.files && input.files[0]) {
+            let reader = new FileReader();
+            reader.onload = e => player.style.backgroundImage = `url(${e.target.result})`;
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+    
+    function resetBG() {
+        player.style.backgroundImage = '';
+        player.style.backgroundColor = '#000';
+    }
 
-function uploadBG(input){
-let file=input.files[0];
-let reader=new FileReader();
-reader.onload=e=>{
-document.getElementById("player").style.background=`url(${e.target.result})`;
-};
-reader.readAsDataURL(file);
-}
+    // === TEXT LOGIC ===
+    function loadScript() {
+        let raw = document.getElementById('textInput').value;
+        if(!raw.trim()) { alert("Isi dulu teksnya, Bang!"); return; }
+        
+        scenes = raw.split(/\n+/).filter(x => x.trim() !== "");
+        textDiv.innerHTML = "<span>SCRIPT READY: " + scenes.length + " SCENE</span>";
+        currentScene = 0;
+    }
 
-// ===== MUSIC GENERATOR (SAFE) =====
+    // === TYPING ENGINE (Optimized for FB) ===
+    function playScene() {
+        if (currentScene >= scenes.length) {
+            finishRecording();
+            return;
+        }
 
-let audioCtx;
-let osc;
-let gainNode;
+        let txt = scenes[currentScene];
+        textDiv.innerHTML = ""; // Clear
+        charIndex = 0;
 
-function startMusic(){
+        // Create span wrapper for highlight effect
+        let span = document.createElement('span');
+        textDiv.appendChild(span);
 
-audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+        typeTimer = setInterval(() => {
+            span.innerText = txt.substring(0, charIndex);
+            charIndex++;
 
-osc=audioCtx.createOscillator();
-gainNode=audioCtx.createGain();
+            if (charIndex > txt.length) {
+                clearInterval(typeTimer);
+                
+                // Jeda baca (Rumus: Panjang teks * 50ms + 1.5 detik)
+                let readTime = 1500 + (txt.length * 20); 
+                setTimeout(() => {
+                    currentScene++;
+                    playScene();
+                }, readTime);
+            }
+        }, 40); // Sedikit lebih cepat untuk FB
+    }
 
-osc.type="sine";
-osc.frequency.value=174; // cinematic ambient
+    // === RECORDING LOGIC ===
+    async function startFBPro() {
+        if(scenes.length === 0) { alert("Klik LOAD SCRIPT dulu!"); return; }
 
-gainNode.gain.value=0.05;
+        // Matikan Safe Zone otomatis saat record biar bersih
+        document.getElementById('safeZoneToggle').checked = false;
+        toggleSafeZone();
 
-osc.connect(gainNode);
-gainNode.connect(audioCtx.destination);
+        try {
+            const stream = await navigator.mediaDevices.getDisplayMedia({
+                video: { frameRate: 60 }, audio: false
+            });
 
-osc.start();
-}
+            // Countdown Visual
+            countdownEl.style.display = 'flex';
+            let count = 3;
+            countdownEl.innerText = count;
+            
+            let cInt = setInterval(() => {
+                count--;
+                if(count > 0) countdownEl.innerText = count;
+                else {
+                    clearInterval(cInt);
+                    countdownEl.style.display = 'none';
+                    runRecorder(stream);
+                }
+            }, 1000);
 
-function stopMusic(){
-if(osc){
-osc.stop();
-}
-}
+        } catch (err) {
+            console.error("Batal/Error: " + err);
+        }
+    }
 
-// ===== GENERATE =====
+    function runRecorder(stream) {
+        recordedChunks = [];
+        mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm;codecs=vp9' });
+        
+        mediaRecorder.ondataavailable = e => {
+            if(e.data.size > 0) recordedChunks.push(e.data);
+        };
 
-function generate(){
+        mediaRecorder.onstop = saveFile;
+        mediaRecorder.start();
 
-let text=document.getElementById("textInput").value;
+        // Mulai Animasi
+        currentScene = 0;
+        playScene();
+    }
 
-if(text.trim().length<20){
-document.getElementById("player").innerHTML="Masukin cerita dulu";
-return;
-}
+    function finishRecording() {
+        textDiv.innerHTML = "<span>LIKE & SHARE!</span>";
+        setTimeout(() => {
+            if(mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+                mediaRecorder.stream.getTracks().forEach(t => t.stop());
+            }
+        }, 2000);
+    }
 
-let parts=text.split(/\n+/).filter(x=>x.trim()!="");
-
-scenes=[];
-
-for(let i=0;i<parts.length;i+=3){
-scenes.push(parts.slice(i,i+3).join(" "));
-}
-
-currentScene=0;
-charIndex=0;
-
-document.getElementById("player").innerHTML="Scene siap: "+scenes.length;
-
-}
-
-// ===== PLAY TYPEWRITER =====
-
-function play(){
-
-if(scenes.length==0){
-document.getElementById("player").innerHTML="Klik generate dulu";
-return;
-}
-
-startMusic();
-
-paused=false;
-runTyping();
-}
-
-function runTyping(){
-
-clearInterval(timer);
-
-if(currentScene>=scenes.length){
-document.getElementById("player").innerHTML+="<br>SELESAI";
-stopMusic();
-return;
-}
-
-let player=document.getElementById("player");
-let txt=scenes[currentScene];
-
-timer=setInterval(()=>{
-
-if(paused) return;
-
-player.innerHTML=txt.substring(0,charIndex);
-charIndex++;
-
-if(charIndex>txt.length){
-clearInterval(timer);
-setTimeout(()=>{
-currentScene++;
-charIndex=0;
-runTyping();
-},1200);
-}
-
-},35);
-
-}
-
-// ===== RECORD =====
-
-async function startRecord(){
-
-let stream=await navigator.mediaDevices.getDisplayMedia({
-video:{frameRate:60},
-audio:true
-});
-
-mediaRecorder=new MediaRecorder(stream);
-
-recordedChunks=[];
-
-mediaRecorder.ondataavailable=e=>{
-if(e.data.size>0) recordedChunks.push(e.data);
-};
-
-mediaRecorder.onstop=()=>{
-
-let blob=new Blob(recordedChunks,{type:"video/webm"});
-let url=URL.createObjectURL(blob);
-
-let a=document.createElement("a");
-a.href=url;
-a.download="creator_video_pro.webm";
-a.click();
-
-};
-
-mediaRecorder.start();
-
-document.getElementById("player").innerHTML="RECORDING...";
-}
-
-function stopRecord(){
-if(mediaRecorder){
-mediaRecorder.stop();
-}
-}
-
-// ===== TAB SAFE =====
-
-document.addEventListener("visibilitychange",()=>{
-paused=document.hidden;
-});
+    function saveFile() {
+        const blob = new Blob(recordedChunks, { type: 'video/webm' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        document.body.appendChild(a);
+        a.style.display = 'none';
+        a.href = url;
+        a.download = `FB_PRO_${Date.now()}.webm`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+        
+        alert("Video FB Pro Siap! Cek folder Download.");
+    }
 
 </script>
-
 </body>
 </html>
