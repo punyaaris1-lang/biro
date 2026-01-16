@@ -3,160 +3,105 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>Storyteller Engine V8 (Big Buttons)</title>
+<title>Creator Pro V9 Mobile Fix</title>
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Poppins:wght@600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@700&family=Poppins:wght@600&display=swap');
 
     body {
         margin: 0;
-        background: #121212;
+        background: #0f0f0f;
         color: white;
         font-family: 'Poppins', sans-serif;
         display: flex;
         flex-direction: column;
         height: 100vh;
+        overflow: hidden; /* Kunci scroll body */
     }
 
-    /* --- LAYOUT ATAS: PREVIEW --- */
+    /* --- AREA PREVIEW (CANVAS) --- */
     #preview-area {
-        flex: 1; /* Mengisi sisa ruang */
+        flex: 1;
         background: #000;
         display: flex;
         align-items: center;
         justify-content: center;
         position: relative;
-        overflow: hidden;
         border-bottom: 2px solid #333;
     }
 
-    #video-screen {
-        width: 100%;
-        max-width: 450px; /* Lebar HP */
-        aspect-ratio: 4/5; /* Rasio FB/IG Aman */
-        background: #222;
-        background-size: cover;
-        background-position: center;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 30px;
-        box-sizing: border-box;
-        position: relative;
+    canvas {
+        max-width: 100%;
+        max-height: 100%;
+        box-shadow: 0 0 20px rgba(0,0,0,0.5);
     }
 
-    /* Overlay biar teks jelas */
-    #video-screen::before {
-        content: '';
-        position: absolute;
-        top:0; left:0; right:0; bottom:0;
-        background: rgba(0,0,0,0.6); 
-        z-index: 1;
-    }
-
-    #display-text {
-        position: relative;
-        z-index: 2;
-        font-family: 'Courier Prime', monospace; /* Font ala mesin ketik */
-        font-size: 22px;
-        line-height: 1.5;
-        font-weight: bold;
-        text-shadow: 1px 1px 2px black;
-        white-space: pre-wrap;
-        text-align: left;
-        width: 100%;
-    }
-
-    /* Kursor kedip-kedip */
-    .cursor::after {
-        content: '|';
-        animation: blink 1s infinite;
-    }
-    @keyframes blink { 50% { opacity: 0; } }
-
-    /* Indikator Recording */
-    #rec-indicator {
+    /* Indikator REC */
+    #rec-badge {
         position: absolute;
         top: 20px; right: 20px;
         background: red;
         color: white;
-        padding: 5px 10px;
-        border-radius: 4px;
+        padding: 5px 12px;
+        border-radius: 20px;
         font-size: 12px;
         font-weight: bold;
         display: none;
         z-index: 99;
+        box-shadow: 0 0 10px red;
         animation: pulse 1s infinite;
     }
     @keyframes pulse { 50% { opacity: 0.5; } }
 
-    /* --- LAYOUT BAWAH: KONTROL --- */
-    #control-panel {
-        height: 50vh; /* Setengah layar buat ngedit */
-        background: #1e1e1e;
+    /* --- KONTROL PANEL --- */
+    #controls {
+        height: 45vh; /* Setengah layar */
+        background: #1a1a1a;
         padding: 15px;
         box-sizing: border-box;
         display: flex;
         flex-direction: column;
-        gap: 10px;
+        gap: 12px;
         overflow-y: auto;
-        border-top: 2px solid #444;
     }
 
-    /* JUDUL LABEL */
-    .label-box {
-        font-size: 14px;
-        color: #bbb;
-        margin-bottom: 5px;
-        display: block;
-    }
+    .label { font-size: 12px; color: #aaa; margin-bottom: 4px; display:block; }
 
-    /* AREA TEKS - DIBUAT JELAS BATASNYA */
     textarea {
         width: 100%;
-        height: 120px; /* Tinggi fix biar lega */
-        background: #2a2a2a;
+        height: 80px;
+        background: #252525;
         color: #fff;
-        border: 2px solid #555; /* Batas Jelas */
+        border: 1px solid #444;
         border-radius: 8px;
-        padding: 12px;
+        padding: 10px;
+        font-family: 'Courier Prime', monospace;
         font-size: 14px;
+        resize: none;
         box-sizing: border-box;
-        resize: none; /* Gabisa ditarik user, udah fix */
-        font-family: 'Courier New', monospace;
-    }
-    textarea:focus {
-        border-color: #00ff88;
-        outline: none;
     }
 
-    /* TOMBOL GROUP */
-    .btn-group {
-        display: grid;
-        grid-template-columns: 1fr 1fr; /* 2 Kolom */
-        gap: 10px;
-        margin-top: 10px;
-    }
+    .row { display: flex; gap: 10px; }
 
     button {
         padding: 15px;
         border: none;
         border-radius: 8px;
-        font-size: 16px;
         font-weight: bold;
-        cursor: pointer;
-        text-transform: uppercase;
         color: white;
+        font-size: 14px;
+        cursor: pointer;
+        width: 100%;
     }
+    
+    button:active { transform: scale(0.96); }
 
-    button:active { transform: scale(0.95); }
+    .btn-blue { background: #2980b9; }
+    .btn-red { background: #c0392b; }
+    .btn-dark { background: #333; border: 1px solid #555; }
+    .btn-stop { background: #e74c3c; animation: blink-btn 1s infinite; }
 
-    /* WARNA TOMBOL BEDAIN BIAR JELAS */
-    .btn-preview { background: #2196F3; } /* Biru */
-    .btn-record { background: #ff3b30; box-shadow: 0 4px 15px rgba(255, 59, 48, 0.4); } /* Merah */
-    .btn-stop { background: #555; } /* Abu */
-    .btn-upload { background: #333; font-size: 12px; padding: 10px;}
+    @keyframes blink-btn { 50% { background: #c0392b; } }
 
-    /* Utility */
     .hidden { display: none !important; }
 
 </style>
@@ -164,195 +109,288 @@
 <body>
 
 <div id="preview-area">
-    <div id="video-screen">
-        <div id="rec-indicator">● REC</div>
-        <div id="display-text">Area Pratinjau.<br>Teks akan muncul di sini...</div>
-    </div>
+    <div id="rec-badge">● REC</div>
+    <canvas id="mainCanvas" width="720" height="900"></canvas>
 </div>
 
-<div id="control-panel">
+<div id="controls">
 
     <div>
-        <span class="label-box">1. Masukkan Cerita (Pisahkan Paragraf dengan ENTER)</span>
-        <textarea id="storyInput" placeholder="Tulis cerita di sini...
-Contoh:
-Pada suatu hari yang cerah...
+        <span class="label">1. Tulis Cerita (Enter untuk ganti slide)</span>
+        <textarea id="storyInput" placeholder="Malam itu sepi...
 (Tekan Enter)
-Aku bertemu dengan seseorang...
+Aku mendengar suara langkah...
 (Tekan Enter)
-Ternyata dia adalah..."></textarea>
+Ternyata dia datang..."></textarea>
     </div>
 
-    <div style="display:flex; align-items:center; gap:10px;">
-        <span class="label-box" style="flex:1">2. Background:</span>
-        <button class="btn-upload" onclick="document.getElementById('bgFile').click()" style="flex:2">📸 GANTI FOTO</button>
-        <input type="file" id="bgFile" accept="image/*" style="display:none" onchange="changeBG(this)">
+    <div class="row">
+        <button class="btn-dark" onclick="document.getElementById('bgInput').click()">📸 Ganti Foto Background</button>
+        <input type="file" id="bgInput" accept="image/*" hidden onchange="loadBackground(this)">
     </div>
 
-    <span class="label-box" style="margin-top:10px;">3. Kontrol Video:</span>
-    <div class="btn-group">
-        <button class="btn-preview" id="btnPlay" onclick="playPreview()">▶ PLAY (Cek)</button>
-        <button class="btn-record" id="btnRec" onclick="startRecord()">● REKAM VIDEO</button>
+    <span class="label">2. Aksi (Musik Otomatis Nyala)</span>
+    <div class="row" id="action-buttons">
+        <button class="btn-blue" onclick="previewAction()">▶ Cek Dulu</button>
+        <button class="btn-red" onclick="startRecording()">● REKAM VIDEO</button>
     </div>
     
-    <button class="btn-stop hidden" id="btnStop" onclick="stopRecord()" style="width:100%; margin-top:10px;">■ STOP RECORDING</button>
+    <button id="stop-btn" class="btn-stop hidden" onclick="stopRecording()">■ STOP REKAM (Simpan)</button>
 
 </div>
 
 <script>
-    // === VARIABLE ===
+    // === CONFIG ===
+    const canvas = document.getElementById('mainCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    // State
     let scenes = [];
-    let currentScene = 0;
-    let charIndex = 0;
-    let typeTimer = null;
+    let currentSceneIdx = 0;
+    let charIdx = 0;
+    let textToDraw = "";
+    let isTyping = false;
+    let bgImage = null; // Object Image
+    let animationId;
+    
+    // Recording State
     let mediaRecorder;
-    let recordedChunks = [];
-    let isRecording = false;
+    let chunks = [];
+    let audioCtx, destNode, oscNodes = []; // Untuk Musik
 
-    // === ELEMENT ===
-    const display = document.getElementById('display-text');
-    const screen = document.getElementById('video-screen');
-    const input = document.getElementById('storyInput');
-    const btnPlay = document.getElementById('btnPlay');
-    const btnRec = document.getElementById('btnRec');
-    const btnStop = document.getElementById('btnStop');
-    const recInd = document.getElementById('rec-indicator');
+    // Default Teks saat load
+    ctx.fillStyle = "black";
+    ctx.fillRect(0,0, canvas.width, canvas.height);
+    ctx.fillStyle = "white";
+    ctx.font = "bold 30px Arial";
+    ctx.textAlign = "center";
+    ctx.fillText("Siap Digunakan", canvas.width/2, canvas.height/2);
 
-    // === FUNGSI BACKGROUND ===
-    function changeBG(input) {
-        if (input.files && input.files[0]) {
-            let reader = new FileReader();
-            reader.onload = e => screen.style.backgroundImage = `url(${e.target.result})`;
+    // === 1. LOGIKA BACKGROUND ===
+    function loadBackground(input) {
+        if(input.files && input.files[0]){
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    bgImage = img;
+                    drawFrame(); // Refresh canvas
+                };
+                img.src = e.target.result;
+            };
             reader.readAsDataURL(input.files[0]);
         }
     }
 
-    // === PERSIAPAN DATA ===
-    function prepareScenes() {
-        let raw = input.value;
-        if (!raw.trim()) {
-            display.innerHTML = "⚠️ Teks kosong! Tulis cerita dulu di bawah.";
-            return false;
+    // === 2. ENGINE GAMBAR (CANVAS LOOP) ===
+    function drawFrame() {
+        // 1. Gambar Background
+        if(bgImage) {
+            // Draw image full cover (simulasi object-fit: cover)
+            const ratio = Math.max(canvas.width / bgImage.width, canvas.height / bgImage.height);
+            const centerShift_x = (canvas.width - bgImage.width * ratio) / 2;
+            const centerShift_y = (canvas.height - bgImage.height * ratio) / 2;
+            ctx.drawImage(bgImage, 0, 0, bgImage.width, bgImage.height, centerShift_x, centerShift_y, bgImage.width * ratio, bgImage.height * ratio);
+        } else {
+            ctx.fillStyle = "#111";
+            ctx.fillRect(0,0, canvas.width, canvas.height);
         }
-        // Split berdasarkan Enter (\n)
-        scenes = raw.split(/\n+/).filter(line => line.trim() !== "");
-        currentScene = 0;
+
+        // 2. Gelapkan Background (Overlay)
+        ctx.fillStyle = "rgba(0,0,0,0.5)";
+        ctx.fillRect(0,0, canvas.width, canvas.height);
+
+        // 3. Gambar Teks (Wrap Text Manual)
+        ctx.fillStyle = "white";
+        ctx.font = "bold 40px 'Courier Prime', monospace";
+        ctx.textAlign = "left";
+        ctx.textBaseline = "top";
+        
+        // Efek Shadow Teks
+        ctx.shadowColor = "black";
+        ctx.shadowBlur = 4;
+        ctx.shadowOffsetX = 2;
+        ctx.shadowOffsetY = 2;
+
+        wrapText(ctx, textToDraw + (isTyping ? "|" : ""), 50, canvas.height/2 - 100, 620, 55);
+        
+        // Reset shadow
+        ctx.shadowColor = "transparent";
+    }
+
+    // Fungsi Pembungkus Teks (Supaya gak nabrak kanan)
+    function wrapText(context, text, x, y, maxWidth, lineHeight) {
+        let words = text.split(' ');
+        let line = '';
+        let startY = y;
+
+        for(let n = 0; n < words.length; n++) {
+            let testLine = line + words[n] + ' ';
+            let metrics = context.measureText(testLine);
+            let testWidth = metrics.width;
+            if (testWidth > maxWidth && n > 0) {
+                context.fillText(line, x, y);
+                line = words[n] + ' ';
+                y += lineHeight;
+            } else {
+                line = testLine;
+            }
+        }
+        context.fillText(line, x, y);
+    }
+
+    // === 3. ENGINE KETIK (TYPING) ===
+    function prepareStory() {
+        const raw = document.getElementById('storyInput').value;
+        if(!raw.trim()) { alert("Isi cerita dulu!"); return false; }
+        scenes = raw.split(/\n+/).filter(x => x.trim() !== "");
+        currentSceneIdx = 0;
         return true;
     }
 
-    // === MESIN KETIK (ANIMASI) ===
-    function runTypewriter(callback) {
-        if (currentScene >= scenes.length) {
-            if (callback) callback(); // Panggil fungsi selesai
+    function playSequence(onFinish) {
+        if(currentSceneIdx >= scenes.length) {
+            if(onFinish) onFinish();
             return;
         }
 
-        let txt = scenes[currentScene];
-        display.innerHTML = ""; // Bersihkan layar
-        display.classList.add('cursor'); // Tambah kursor
-        charIndex = 0;
+        let fullText = scenes[currentSceneIdx];
+        charIdx = 0;
+        isTyping = true;
+        
+        let typeInterval = setInterval(() => {
+            textToDraw = fullText.substring(0, charIdx);
+            charIdx++;
+            drawFrame(); // Update layar
 
-        // Loop ngetik per huruf
-        typeTimer = setInterval(() => {
-            display.innerText = txt.substring(0, charIndex);
-            charIndex++;
+            if(charIdx > fullText.length) {
+                clearInterval(typeInterval);
+                isTyping = false;
+                drawFrame(); // Hapus kursor
 
-            if (charIndex > txt.length) {
-                clearInterval(typeTimer);
-                display.classList.remove('cursor'); // Hapus kursor pas baca
-
-                // Waktu baca: (Panjang teks * 50ms) + 1.5 detik jeda
-                let readDelay = 1500; 
+                // Jeda baca 2 detik
                 setTimeout(() => {
-                    currentScene++;
-                    runTypewriter(callback);
-                }, readDelay);
+                    currentSceneIdx++;
+                    playSequence(onFinish);
+                }, 2000); 
             }
-        }, 50); // Kecepatan ngetik (makin kecil makin ngebut)
+        }, 50); // Kecepatan ketik
     }
 
-    // === TOMBOL 1: PREVIEW (Cuma Nonton) ===
-    function playPreview() {
-        if(!prepareScenes()) return;
+    // === 4. AUDIO ENGINE (MUSIK STORY) ===
+    function startMusic() {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        destNode = audioCtx.createMediaStreamDestination(); // Output khusus buat rekaman
         
-        // UI Update
-        clearInterval(typeTimer);
-        display.innerHTML = "Ready...";
+        // Bikin Chord Ambient (C Minor Pad)
+        const freqs = [130.81, 155.56, 196.00]; // C3, Eb3, G3
         
-        setTimeout(() => {
-            runTypewriter(() => {
-                display.innerHTML += "<br><br>[SELESAI]";
-            });
-        }, 500);
+        freqs.forEach(f => {
+            let osc = audioCtx.createOscillator();
+            let gain = audioCtx.createGain();
+            
+            osc.type = 'sine'; // Suara halus
+            osc.frequency.value = f;
+            
+            gain.gain.value = 0.1; // Volume kecil biar background
+            
+            osc.connect(gain);
+            gain.connect(audioCtx.destination); // Ke speaker HP
+            gain.connect(destNode); // Ke rekaman video
+            
+            osc.start();
+            oscNodes.push(osc);
+        });
     }
 
-    // === TOMBOL 2: RECORD (Rekam & Simpan) ===
-    async function startRecord() {
-        if(!prepareScenes()) return;
-
-        try {
-            // Minta izin layar (Pilih Tab Ini)
-            const stream = await navigator.mediaDevices.getDisplayMedia({
-                video: { frameRate: 60 },
-                audio: false
-            });
-
-            // Setup Recorder
-            recordedChunks = [];
-            mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm;codecs=vp9' });
-
-            mediaRecorder.ondataavailable = e => {
-                if(e.data.size > 0) recordedChunks.push(e.data);
-            };
-
-            mediaRecorder.onstop = saveVideo;
-
-            // Start
-            mediaRecorder.start();
-            isRecording = true;
-
-            // UI Changes
-            recInd.style.display = 'block'; // Munculin tanda REC
-            btnRec.classList.add('hidden'); // Sembunyiin tombol Rec
-            btnPlay.classList.add('hidden'); // Sembunyiin tombol Play
-            btnStop.classList.remove('hidden'); // Munculin tombol Stop
-
-            // Mulai Animasi
-            runTypewriter(() => {
-                stopRecord(); // Otomatis stop kalau teks habis
-            });
-
-        } catch (err) {
-            alert("Gagal merekam: " + err);
+    function stopMusic() {
+        if(oscNodes) {
+            oscNodes.forEach(o => o.stop());
+            oscNodes = [];
         }
+        if(audioCtx) audioCtx.close();
     }
 
-    // === STOP & SAVE ===
-    function stopRecord() {
-        if(isRecording && mediaRecorder && mediaRecorder.state !== 'inactive') {
+    // === 5. FUNGSI TOMBOL ===
+    function previewAction() {
+        if(!prepareStory()) return;
+        textToDraw = "";
+        playSequence(() => { textToDraw = "--- PREVIEW SELESAI ---"; drawFrame(); });
+    }
+
+    function startRecording() {
+        if(!prepareStory()) return;
+
+        // 1. Mulai Musik & Canvas Stream
+        startMusic();
+        
+        // GABUNGKAN STREAM: Visual Canvas + Audio Musik
+        const canvasStream = canvas.captureStream(30); // 30 FPS
+        const audioStream = destNode.stream;
+        
+        // Mix Audio + Video
+        const combinedTracks = [
+            ...canvasStream.getVideoTracks(),
+            ...audioStream.getAudioTracks()
+        ];
+        const finalStream = new MediaStream(combinedTracks);
+
+        // 2. Setup Recorder
+        mediaRecorder = new MediaRecorder(finalStream, {
+            mimeType: 'video/webm;codecs=vp8' // Format paling aman buat Android
+        });
+
+        chunks = [];
+        mediaRecorder.ondataavailable = e => {
+            if(e.data.size > 0) chunks.push(e.data);
+        };
+
+        mediaRecorder.onstop = saveVideo;
+        mediaRecorder.start();
+
+        // UI
+        document.getElementById('action-buttons').classList.add('hidden');
+        document.getElementById('stop-btn').classList.remove('hidden');
+        document.getElementById('rec-badge').style.display = 'block';
+
+        // 3. Jalankan Animasi
+        textToDraw = "";
+        playSequence(() => {
+            stopRecording(); // Stop otomatis pas cerita habis
+        });
+    }
+
+    function stopRecording() {
+        if(mediaRecorder && mediaRecorder.state !== 'inactive') {
             mediaRecorder.stop();
-            mediaRecorder.stream.getTracks().forEach(t => t.stop()); // Stop sharing icon
         }
-
+        stopMusic();
+        
         // Reset UI
-        isRecording = false;
-        recInd.style.display = 'none';
-        btnRec.classList.remove('hidden');
-        btnPlay.classList.remove('hidden');
-        btnStop.classList.add('hidden');
+        document.getElementById('action-buttons').classList.remove('hidden');
+        document.getElementById('stop-btn').classList.add('hidden');
+        document.getElementById('rec-badge').style.display = 'none';
     }
 
     function saveVideo() {
-        const blob = new Blob(recordedChunks, { type: 'video/webm' });
+        const blob = new Blob(chunks, { type: 'video/webm' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         document.body.appendChild(a);
         a.style.display = 'none';
         a.href = url;
-        a.download = `Story_Video_${Date.now()}.webm`;
+        
+        // Nama file unik
+        const date = new Date();
+        a.download = `Story_${date.getHours()}${date.getMinutes()}.webm`;
+        
         a.click();
         window.URL.revokeObjectURL(url);
+        alert("Video tersimpan! Cek Galeri/Download.");
     }
+
+    // Init awal
+    drawFrame();
 
 </script>
 
