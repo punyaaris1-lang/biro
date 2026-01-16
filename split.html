@@ -3,192 +3,180 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Creator Pro Split Scene V4</title>
+<title>Creator Pro V5 Stable</title>
 
 <style>
 body {
-font-family: Arial;
-background:#0d1117;
+margin:0;
+background:black;
 color:white;
-padding:15px;
+font-family:Arial;
+display:flex;
+flex-direction:column;
+height:100vh;
+}
+
+#control {
+padding:10px;
+background:#111;
 }
 
 textarea {
 width:100%;
-height:170px;
-background:#161b22;
+height:120px;
+background:#000;
 color:white;
-border:1px solid #30363d;
-border-radius:8px;
-padding:10px;
-}
-
-select, button {
-width:100%;
-padding:12px;
-margin-top:10px;
-border:none;
-border-radius:8px;
-font-size:15px;
-font-weight:bold;
-}
-
-select {
-background:#161b22;
-color:white;
-border:1px solid #30363d;
+border:1px solid #333;
+border-radius:6px;
+padding:8px;
 }
 
 button {
-background:#238636;
-color:white;
-}
-
-.box {
-background:#161b22;
-border:1px solid #30363d;
-border-radius:8px;
-padding:10px;
-margin-top:12px;
-}
-
-.title {
-font-weight:bold;
-color:#58a6ff;
-margin-bottom:5px;
-}
-
-.copyBtn {
-margin-top:6px;
-padding:8px;
-background:#30363d;
+width:100%;
+padding:12px;
+margin-top:8px;
 border:none;
 border-radius:6px;
+background:#16a34a;
 color:white;
-width:100%;
+font-weight:bold;
+font-size:16px;
+}
+
+#player {
+flex:1;
+display:flex;
+align-items:center;
+justify-content:center;
+padding:20px;
+text-align:center;
+font-size:28px;
+line-height:1.4;
 }
 </style>
 </head>
 
 <body>
 
-<h2>🎬 Creator Pro Split Scene V4</h2>
+<div id="control">
+<textarea id="textInput" placeholder="Paste cerita disini..."></textarea>
+<button onclick="generate()">GENERATE SCENE</button>
+<button onclick="startPlayback()">PLAY</button>
+<button onclick="startRecord()">START RECORD</button>
+<button onclick="stopRecord()">STOP RECORD</button>
+</div>
 
-<textarea id="inputText" placeholder="Paste cerpen (pisahkan paragraf dengan ENTER)..."></textarea>
-
-<select id="mode">
-<option value="30">⚡ Reels Cepat (30 detik)</option>
-<option value="45" selected>🔥 Viral Mode (45 detik)</option>
-<option value="60">🎥 Story Mode (60 detik)</option>
-</select>
-
-<button onclick="generate()">GENERATE SCENE PRO</button>
-
-<button onclick="copyAll()">📋 COPY ALL (CANVA)</button>
-
-<div id="output"></div>
+<div id="player"></div>
 
 <script>
+let scenes=[];
+let currentScene=0;
+let charIndex=0;
+let typingInterval=null;
+let paused=false;
+
+let mediaRecorder;
+let recordedChunks=[];
+
 function generate(){
+let text=document.getElementById("textInput").value.trim();
+if(!text){ alert("Masukkan teks"); return;}
 
-let text = document.getElementById("inputText").value.trim();
-if(!text){
-alert("Masukin cerpen dulu");
+let parts=text.split(/\n+/).filter(x=>x.trim()!="");
+
+scenes=[];
+for(let i=0;i<parts.length;i+=3){
+scenes.push(parts.slice(i,i+3).join(" "));
+}
+
+alert("Scene dibuat: "+scenes.length);
+}
+
+function startPlayback(){
+if(!scenes.length){
+alert("Generate dulu");
 return;
 }
 
-let paras = text.split(/\n+/).filter(p => p.trim() !== "");
+paused=false;
+runTyping();
+}
 
-if(paras.length < 5){
-alert("Minimal 5 paragraf");
+function runTyping(){
+
+if(currentScene>=scenes.length){
+clearInterval(typingInterval);
 return;
 }
 
-let mode = document.getElementById("mode").value;
+let player=document.getElementById("player");
 
-let hook = paras[0];
-let scene1 = paras.slice(1,3).join(" ");
-let scene2 = paras.slice(3,5).join(" ");
-let scene3 = paras.slice(5,7).join(" ");
-let scene4 = paras.slice(7,9).join(" ");
-let climax = paras.slice(9).join(" ");
+typingInterval=setInterval(()=>{
 
-let ctaText = (mode == "30") ? "LIKE kalau relate" :
-              (mode == "45") ? "LANJUT PART 2?" :
-              "FOLLOW buat lanjutannya";
+if(paused) return;
 
-let scenes = [
-["🔥 HOOK (3s)", hook],
-["🎬 SCENE 1 (6s)", scene1],
-["🎬 SCENE 2 (6s)", scene2],
-["🎬 SCENE 3 (6s)", scene3],
-["🎬 SCENE 4 (6s)", scene4],
-["🚀 CLIMAX (5s)", climax],
-["🔔 CTA (3s)", ctaText]
-];
+let txt=scenes[currentScene];
 
-let html = "";
+player.innerHTML = txt.substring(0,charIndex);
+charIndex++;
 
-scenes.forEach((s,i)=>{
-let formatted = formatTypewriter(s[1]);
-html += `
-<div class="box">
-<div class="title">${s[0]}</div>
-<div id="scene${i}">${formatted}</div>
-<button class="copyBtn" onclick="copyScene('scene${i}')">COPY SCENE</button>
-</div>
-`;
+if(charIndex>txt.length){
+clearInterval(typingInterval);
+setTimeout(()=>{
+currentScene++;
+charIndex=0;
+runTyping();
+},1200);
+}
+
+,35); // viral speed
+}
+
+async function startRecord(){
+
+let stream=await navigator.mediaDevices.getDisplayMedia({
+video:{frameRate:60},
+audio:false
 });
 
-document.getElementById("output").innerHTML = html;
+mediaRecorder=new MediaRecorder(stream,{mimeType:"video/webm"});
+recordedChunks=[];
+
+mediaRecorder.ondataavailable=e=>{
+if(e.data.size>0) recordedChunks.push(e.data);
+};
+
+mediaRecorder.onstop=()=>{
+let blob=new Blob(recordedChunks,{type:"video/webm"});
+let url=URL.createObjectURL(blob);
+let a=document.createElement("a");
+a.href=url;
+a.download="creator_pro_v5_stable.webm";
+a.click();
+};
+
+mediaRecorder.start();
 }
 
-function formatTypewriter(txt){
-let words = txt.split(" ");
-let lines = [];
-let line = "";
+function stopRecord(){
+if(mediaRecorder){
+mediaRecorder.stop();
+}
+}
 
-words.forEach(word=>{
-if((line + word).length > 28){
-lines.push(line.trim());
-line = word + " ";
+/* ===== TAB SAFE MODE ===== */
+
+document.addEventListener("visibilitychange", ()=>{
+
+if(document.hidden){
+paused=true;
+console.log("Paused (tab hidden)");
 }else{
-line += word + " ";
+paused=false;
+console.log("Resumed");
 }
+
 });
-
-lines.push(line.trim());
-
-return lines.join("<br>");
-}
-
-function copyScene(id){
-let el = document.getElementById(id);
-let temp = document.createElement("textarea");
-temp.value = el.innerText;
-document.body.appendChild(temp);
-temp.select();
-document.execCommand("copy");
-document.body.removeChild(temp);
-alert("Scene copied");
-}
-
-function copyAll(){
-let boxes = document.querySelectorAll("[id^='scene']");
-let allText = "";
-boxes.forEach((b,i)=>{
-allText += "SLIDE " + (i+1) + "\n" + b.innerText + "\n\n";
-});
-
-let temp = document.createElement("textarea");
-temp.value = allText;
-document.body.appendChild(temp);
-temp.select();
-document.execCommand("copy");
-document.body.removeChild(temp);
-
-alert("ALL SCENE COPIED");
-}
 </script>
 
 </body>
