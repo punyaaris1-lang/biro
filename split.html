@@ -3,427 +3,358 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>FB Pro Video Creator V7.0</title>
+<title>Storyteller Engine V8 (Big Buttons)</title>
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Anton&family=Poppins:wght@400;700&display=swap');
-
-    :root {
-        --fb-blue: #1877F2;
-        --fb-bg: #F0F2F5;
-        --panel: #ffffff;
-        --text: #050505;
-        --highlight: #FFE600; /* Warna Viral FB */
-    }
+    @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Poppins:wght@600&display=swap');
 
     body {
         margin: 0;
-        background: #e9ebee;
-        color: #1c1e21;
+        background: #121212;
+        color: white;
         font-family: 'Poppins', sans-serif;
         display: flex;
         flex-direction: column;
         height: 100vh;
-        overflow: hidden;
     }
 
-    /* --- PREVIEW AREA --- */
-    #preview-container {
-        flex: 1;
+    /* --- LAYOUT ATAS: PREVIEW --- */
+    #preview-area {
+        flex: 1; /* Mengisi sisa ruang */
+        background: #000;
         display: flex;
         align-items: center;
         justify-content: center;
-        background: #222;
         position: relative;
         overflow: hidden;
-        padding: 10px;
+        border-bottom: 2px solid #333;
     }
 
-    #player {
+    #video-screen {
         width: 100%;
-        max-width: 400px;
-        aspect-ratio: 4/5; /* Default FB Feed */
-        background-color: #000;
-        background-position: center;
+        max-width: 450px; /* Lebar HP */
+        aspect-ratio: 4/5; /* Rasio FB/IG Aman */
+        background: #222;
         background-size: cover;
-        background-repeat: no-repeat;
+        background-position: center;
         display: flex;
-        align-items: center; /* Default center vertical */
+        align-items: center;
         justify-content: center;
-        text-align: center;
+        padding: 30px;
+        box-sizing: border-box;
         position: relative;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-        overflow: hidden;
     }
 
-    /* Overlay Gelap (Supaya tulisan kebaca) */
-    #player-overlay {
+    /* Overlay biar teks jelas */
+    #video-screen::before {
+        content: '';
         position: absolute;
         top:0; left:0; right:0; bottom:0;
-        background: rgba(0,0,0,0.4);
+        background: rgba(0,0,0,0.6); 
         z-index: 1;
     }
 
-    /* AREA TEKS */
-    #text-content {
+    #display-text {
         position: relative;
         z-index: 2;
-        width: 85%; /* Margin kiri kanan aman */
-        font-family: 'Poppins', sans-serif;
-        font-weight: 700;
-        font-size: 26px;
-        line-height: 1.4;
-        color: white;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.9);
+        font-family: 'Courier Prime', monospace; /* Font ala mesin ketik */
+        font-size: 22px;
+        line-height: 1.5;
+        font-weight: bold;
+        text-shadow: 1px 1px 2px black;
         white-space: pre-wrap;
+        text-align: left;
+        width: 100%;
     }
 
-    /* STYLE VIRAL (Highlight Kuning) */
-    .viral-mode #text-content span {
-        background-color: var(--highlight);
-        color: black;
-        padding: 4px 8px;
-        box-decoration-break: clone;
-        -webkit-box-decoration-break: clone;
-        text-shadow: none;
-        font-family: 'Anton', sans-serif; /* Font tebal ala news */
-        letter-spacing: 1px;
-        text-transform: uppercase;
+    /* Kursor kedip-kedip */
+    .cursor::after {
+        content: '|';
+        animation: blink 1s infinite;
     }
+    @keyframes blink { 50% { opacity: 0; } }
 
-    /* SAFE ZONE (Garis Bantu UI FB) */
-    #safe-zone {
+    /* Indikator Recording */
+    #rec-indicator {
         position: absolute;
-        top: 0; left: 0; right: 0; bottom: 0;
-        border: 2px dashed rgba(255, 0, 0, 0.5);
-        z-index: 99;
-        pointer-events: none;
-        display: none;
-    }
-    /* Area tombol FB di kanan & bawah */
-    #safe-zone::after {
-        content: 'JANGAN TULIS DI SINI (Tombol FB)';
-        position: absolute;
-        bottom: 80px; right: 10px;
-        width: 60px; height: 200px;
-        background: rgba(255,0,0,0.2);
+        top: 20px; right: 20px;
+        background: red;
         color: white;
-        font-size: 10px;
-        display: flex;
-        align-items: center;
-        text-align: center;
-    }
-
-    /* COUNTDOWN */
-    #countdown-layer {
-        position: absolute;
-        top: 0; left: 0; right: 0; bottom: 0;
-        background: rgba(0,0,0,0.9);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 100px;
-        font-weight: 900;
-        color: var(--fb-blue);
-        z-index: 999;
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: bold;
         display: none;
-        font-family: 'Anton', sans-serif;
+        z-index: 99;
+        animation: pulse 1s infinite;
     }
+    @keyframes pulse { 50% { opacity: 0.5; } }
 
-    /* --- CONTROLS --- */
-    #controls {
-        background: var(--panel);
+    /* --- LAYOUT BAWAH: KONTROL --- */
+    #control-panel {
+        height: 50vh; /* Setengah layar buat ngedit */
+        background: #1e1e1e;
         padding: 15px;
-        border-top: 1px solid #ccc;
+        box-sizing: border-box;
         display: flex;
         flex-direction: column;
         gap: 10px;
-        max-height: 50vh;
         overflow-y: auto;
-        box-shadow: 0 -4px 10px rgba(0,0,0,0.1);
+        border-top: 2px solid #444;
     }
 
-    .row { display: flex; gap: 10px; align-items: flex-end;}
-    
-    label { font-size: 11px; font-weight: bold; color: #555; display:block; margin-bottom: 2px;}
+    /* JUDUL LABEL */
+    .label-box {
+        font-size: 14px;
+        color: #bbb;
+        margin-bottom: 5px;
+        display: block;
+    }
 
+    /* AREA TEKS - DIBUAT JELAS BATASNYA */
     textarea {
-        background: #f0f2f5;
-        color: #333;
-        border: 1px solid #ddd;
+        width: 100%;
+        height: 120px; /* Tinggi fix biar lega */
+        background: #2a2a2a;
+        color: #fff;
+        border: 2px solid #555; /* Batas Jelas */
         border-radius: 8px;
-        padding: 10px;
-        height: 50px;
-        width: 100%;
+        padding: 12px;
+        font-size: 14px;
         box-sizing: border-box;
-        font-family: inherit;
+        resize: none; /* Gabisa ditarik user, udah fix */
+        font-family: 'Courier New', monospace;
+    }
+    textarea:focus {
+        border-color: #00ff88;
+        outline: none;
     }
 
-    select, button, input[type="file"] {
-        width: 100%;
-        padding: 10px;
-        border-radius: 6px;
+    /* TOMBOL GROUP */
+    .btn-group {
+        display: grid;
+        grid-template-columns: 1fr 1fr; /* 2 Kolom */
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    button {
+        padding: 15px;
         border: none;
-        font-weight: 600;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: bold;
         cursor: pointer;
-        font-size: 13px;
+        text-transform: uppercase;
+        color: white;
     }
 
-    select { background: #e4e6eb; color: #050505; }
-    
-    .btn-fb { background: #1877F2; color: white; }
-    .btn-green { background: #42b72a; color: white; }
-    .btn-gray { background: #e4e6eb; color: black; }
+    button:active { transform: scale(0.95); }
 
-    /* Checkbox Styles */
-    .checkbox-group {
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        font-size: 12px;
-        background: #eee;
-        padding: 5px 10px;
-        border-radius: 20px;
-    }
-    input[type="checkbox"] { width: auto; }
+    /* WARNA TOMBOL BEDAIN BIAR JELAS */
+    .btn-preview { background: #2196F3; } /* Biru */
+    .btn-record { background: #ff3b30; box-shadow: 0 4px 15px rgba(255, 59, 48, 0.4); } /* Merah */
+    .btn-stop { background: #555; } /* Abu */
+    .btn-upload { background: #333; font-size: 12px; padding: 10px;}
+
+    /* Utility */
+    .hidden { display: none !important; }
 
 </style>
 </head>
 <body>
 
-<div id="preview-container">
-    <div id="player">
-        <div id="player-overlay"></div>
-        <div id="text-content"><span>PREVIEW TEKS FB PRO</span></div>
-        <div id="safe-zone"></div>
+<div id="preview-area">
+    <div id="video-screen">
+        <div id="rec-indicator">● REC</div>
+        <div id="display-text">Area Pratinjau.<br>Teks akan muncul di sini...</div>
     </div>
-    <div id="countdown-layer">3</div>
 </div>
 
-<div id="controls">
+<div id="control-panel">
 
-    <textarea id="textInput" placeholder="Tulis caption viral di sini... (Enter untuk ganti slide)"></textarea>
-
-    <div class="row">
-        <div style="flex:1">
-            <label>Format Video</label>
-            <select onchange="changeRatio(this.value)">
-                <option value="4/5">4:5 (FB Feed/Pro)</option>
-                <option value="1/1">1:1 (Square)</option>
-                <option value="9/16">9:16 (Reels Full)</option>
-            </select>
-        </div>
-        <div style="flex:1">
-            <label>Posisi Gambar</label>
-            <select onchange="changeFit(this.value)">
-                <option value="cover">Full Zoom (Cover)</option>
-                <option value="contain">Masuk Semua (Fit)</option>
-            </select>
-        </div>
+    <div>
+        <span class="label-box">1. Masukkan Cerita (Pisahkan Paragraf dengan ENTER)</span>
+        <textarea id="storyInput" placeholder="Tulis cerita di sini...
+Contoh:
+Pada suatu hari yang cerah...
+(Tekan Enter)
+Aku bertemu dengan seseorang...
+(Tekan Enter)
+Ternyata dia adalah..."></textarea>
     </div>
 
-    <div class="row">
-        <div style="flex:1">
-            <label>Style Teks</label>
-            <div class="checkbox-group">
-                <input type="checkbox" id="viralToggle" onchange="toggleViralMode()"> 
-                <label for="viralToggle" style="margin:0; cursor:pointer;">Mode Viral (Kuning)</label>
-            </div>
-        </div>
-        <div style="flex:1">
-            <label>Bantuan</label>
-            <div class="checkbox-group">
-                <input type="checkbox" id="safeZoneToggle" onchange="toggleSafeZone()">
-                <label for="safeZoneToggle" style="margin:0; cursor:pointer;">Cek Safe Zone</label>
-            </div>
-        </div>
+    <div style="display:flex; align-items:center; gap:10px;">
+        <span class="label-box" style="flex:1">2. Background:</span>
+        <button class="btn-upload" onclick="document.getElementById('bgFile').click()" style="flex:2">📸 GANTI FOTO</button>
+        <input type="file" id="bgFile" accept="image/*" style="display:none" onchange="changeBG(this)">
     </div>
 
-    <div class="row">
-        <div style="flex:2">
-             <label>Ganti Foto Background</label>
-             <input type="file" accept="image/*" onchange="uploadBG(this)" style="background:#fff; border:1px solid #ddd;">
-        </div>
-        <div style="flex:1">
-             <label>&nbsp;</label>
-             <button class="btn-gray" onclick="resetBG()">Reset BG</button>
-        </div>
+    <span class="label-box" style="margin-top:10px;">3. Kontrol Video:</span>
+    <div class="btn-group">
+        <button class="btn-preview" id="btnPlay" onclick="playPreview()">▶ PLAY (Cek)</button>
+        <button class="btn-record" id="btnRec" onclick="startRecord()">● REKAM VIDEO</button>
     </div>
-
-    <div class="row" style="margin-top:5px;">
-        <button class="btn-gray" onclick="loadScript()">1. LOAD SCRIPT</button>
-        <button class="btn-fb" onclick="startFBPro()">2. REKAM FB PRO</button>
-    </div>
+    
+    <button class="btn-stop hidden" id="btnStop" onclick="stopRecord()" style="width:100%; margin-top:10px;">■ STOP RECORDING</button>
 
 </div>
 
 <script>
-    // === CORE VARIABLES ===
+    // === VARIABLE ===
     let scenes = [];
     let currentScene = 0;
     let charIndex = 0;
     let typeTimer = null;
     let mediaRecorder;
     let recordedChunks = [];
-    let isViral = false;
+    let isRecording = false;
 
-    // === DOM ===
-    const player = document.getElementById('player');
-    const textDiv = document.getElementById('text-content');
-    const countdownEl = document.getElementById('countdown-layer');
-    const safeZone = document.getElementById('safe-zone');
+    // === ELEMENT ===
+    const display = document.getElementById('display-text');
+    const screen = document.getElementById('video-screen');
+    const input = document.getElementById('storyInput');
+    const btnPlay = document.getElementById('btnPlay');
+    const btnRec = document.getElementById('btnRec');
+    const btnStop = document.getElementById('btnStop');
+    const recInd = document.getElementById('rec-indicator');
 
-    // === VISUAL SETTINGS ===
-    function changeRatio(val) {
-        player.style.aspectRatio = val;
-        // Penyesuaian lebar agar preview enak dilihat
-        if(val === "9/16") player.style.maxWidth = "300px";
-        else player.style.maxWidth = "400px";
-    }
-
-    function changeFit(val) {
-        player.style.backgroundSize = val;
-    }
-
-    function toggleViralMode() {
-        isViral = document.getElementById('viralToggle').checked;
-        if(isViral) player.classList.add('viral-mode');
-        else player.classList.remove('viral-mode');
-    }
-
-    function toggleSafeZone() {
-        let show = document.getElementById('safeZoneToggle').checked;
-        safeZone.style.display = show ? 'block' : 'none';
-    }
-
-    function uploadBG(input) {
+    // === FUNGSI BACKGROUND ===
+    function changeBG(input) {
         if (input.files && input.files[0]) {
             let reader = new FileReader();
-            reader.onload = e => player.style.backgroundImage = `url(${e.target.result})`;
+            reader.onload = e => screen.style.backgroundImage = `url(${e.target.result})`;
             reader.readAsDataURL(input.files[0]);
         }
     }
-    
-    function resetBG() {
-        player.style.backgroundImage = '';
-        player.style.backgroundColor = '#000';
-    }
 
-    // === TEXT LOGIC ===
-    function loadScript() {
-        let raw = document.getElementById('textInput').value;
-        if(!raw.trim()) { alert("Isi dulu teksnya, Bang!"); return; }
-        
-        scenes = raw.split(/\n+/).filter(x => x.trim() !== "");
-        textDiv.innerHTML = "<span>SCRIPT READY: " + scenes.length + " SCENE</span>";
+    // === PERSIAPAN DATA ===
+    function prepareScenes() {
+        let raw = input.value;
+        if (!raw.trim()) {
+            display.innerHTML = "⚠️ Teks kosong! Tulis cerita dulu di bawah.";
+            return false;
+        }
+        // Split berdasarkan Enter (\n)
+        scenes = raw.split(/\n+/).filter(line => line.trim() !== "");
         currentScene = 0;
+        return true;
     }
 
-    // === TYPING ENGINE (Optimized for FB) ===
-    function playScene() {
+    // === MESIN KETIK (ANIMASI) ===
+    function runTypewriter(callback) {
         if (currentScene >= scenes.length) {
-            finishRecording();
+            if (callback) callback(); // Panggil fungsi selesai
             return;
         }
 
         let txt = scenes[currentScene];
-        textDiv.innerHTML = ""; // Clear
+        display.innerHTML = ""; // Bersihkan layar
+        display.classList.add('cursor'); // Tambah kursor
         charIndex = 0;
 
-        // Create span wrapper for highlight effect
-        let span = document.createElement('span');
-        textDiv.appendChild(span);
-
+        // Loop ngetik per huruf
         typeTimer = setInterval(() => {
-            span.innerText = txt.substring(0, charIndex);
+            display.innerText = txt.substring(0, charIndex);
             charIndex++;
 
             if (charIndex > txt.length) {
                 clearInterval(typeTimer);
-                
-                // Jeda baca (Rumus: Panjang teks * 50ms + 1.5 detik)
-                let readTime = 1500 + (txt.length * 20); 
+                display.classList.remove('cursor'); // Hapus kursor pas baca
+
+                // Waktu baca: (Panjang teks * 50ms) + 1.5 detik jeda
+                let readDelay = 1500; 
                 setTimeout(() => {
                     currentScene++;
-                    playScene();
-                }, readTime);
+                    runTypewriter(callback);
+                }, readDelay);
             }
-        }, 40); // Sedikit lebih cepat untuk FB
+        }, 50); // Kecepatan ngetik (makin kecil makin ngebut)
     }
 
-    // === RECORDING LOGIC ===
-    async function startFBPro() {
-        if(scenes.length === 0) { alert("Klik LOAD SCRIPT dulu!"); return; }
+    // === TOMBOL 1: PREVIEW (Cuma Nonton) ===
+    function playPreview() {
+        if(!prepareScenes()) return;
+        
+        // UI Update
+        clearInterval(typeTimer);
+        display.innerHTML = "Ready...";
+        
+        setTimeout(() => {
+            runTypewriter(() => {
+                display.innerHTML += "<br><br>[SELESAI]";
+            });
+        }, 500);
+    }
 
-        // Matikan Safe Zone otomatis saat record biar bersih
-        document.getElementById('safeZoneToggle').checked = false;
-        toggleSafeZone();
+    // === TOMBOL 2: RECORD (Rekam & Simpan) ===
+    async function startRecord() {
+        if(!prepareScenes()) return;
 
         try {
+            // Minta izin layar (Pilih Tab Ini)
             const stream = await navigator.mediaDevices.getDisplayMedia({
-                video: { frameRate: 60 }, audio: false
+                video: { frameRate: 60 },
+                audio: false
             });
 
-            // Countdown Visual
-            countdownEl.style.display = 'flex';
-            let count = 3;
-            countdownEl.innerText = count;
-            
-            let cInt = setInterval(() => {
-                count--;
-                if(count > 0) countdownEl.innerText = count;
-                else {
-                    clearInterval(cInt);
-                    countdownEl.style.display = 'none';
-                    runRecorder(stream);
-                }
-            }, 1000);
+            // Setup Recorder
+            recordedChunks = [];
+            mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm;codecs=vp9' });
+
+            mediaRecorder.ondataavailable = e => {
+                if(e.data.size > 0) recordedChunks.push(e.data);
+            };
+
+            mediaRecorder.onstop = saveVideo;
+
+            // Start
+            mediaRecorder.start();
+            isRecording = true;
+
+            // UI Changes
+            recInd.style.display = 'block'; // Munculin tanda REC
+            btnRec.classList.add('hidden'); // Sembunyiin tombol Rec
+            btnPlay.classList.add('hidden'); // Sembunyiin tombol Play
+            btnStop.classList.remove('hidden'); // Munculin tombol Stop
+
+            // Mulai Animasi
+            runTypewriter(() => {
+                stopRecord(); // Otomatis stop kalau teks habis
+            });
 
         } catch (err) {
-            console.error("Batal/Error: " + err);
+            alert("Gagal merekam: " + err);
         }
     }
 
-    function runRecorder(stream) {
-        recordedChunks = [];
-        mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm;codecs=vp9' });
-        
-        mediaRecorder.ondataavailable = e => {
-            if(e.data.size > 0) recordedChunks.push(e.data);
-        };
+    // === STOP & SAVE ===
+    function stopRecord() {
+        if(isRecording && mediaRecorder && mediaRecorder.state !== 'inactive') {
+            mediaRecorder.stop();
+            mediaRecorder.stream.getTracks().forEach(t => t.stop()); // Stop sharing icon
+        }
 
-        mediaRecorder.onstop = saveFile;
-        mediaRecorder.start();
-
-        // Mulai Animasi
-        currentScene = 0;
-        playScene();
+        // Reset UI
+        isRecording = false;
+        recInd.style.display = 'none';
+        btnRec.classList.remove('hidden');
+        btnPlay.classList.remove('hidden');
+        btnStop.classList.add('hidden');
     }
 
-    function finishRecording() {
-        textDiv.innerHTML = "<span>LIKE & SHARE!</span>";
-        setTimeout(() => {
-            if(mediaRecorder && mediaRecorder.state !== 'inactive') {
-                mediaRecorder.stop();
-                mediaRecorder.stream.getTracks().forEach(t => t.stop());
-            }
-        }, 2000);
-    }
-
-    function saveFile() {
+    function saveVideo() {
         const blob = new Blob(recordedChunks, { type: 'video/webm' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         document.body.appendChild(a);
         a.style.display = 'none';
         a.href = url;
-        a.download = `FB_PRO_${Date.now()}.webm`;
+        a.download = `Story_Video_${Date.now()}.webm`;
         a.click();
         window.URL.revokeObjectURL(url);
-        
-        alert("Video FB Pro Siap! Cek folder Download.");
     }
 
 </script>
+
 </body>
 </html>
