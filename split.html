@@ -3,56 +3,61 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Creator Pro V5 Stable Final</title>
+<title>Creator Pro V5.3 Media Mode</title>
 
 <style>
-body {
+body{
 margin:0;
 background:black;
 color:white;
-font-family:Arial, sans-serif;
+font-family:Arial;
 display:flex;
 flex-direction:column;
 height:100vh;
 }
 
-#control {
-padding:10px;
+#control{
 background:#111;
+padding:10px;
 }
 
-textarea {
+textarea{
 width:100%;
-height:130px;
+height:110px;
 background:#000;
 color:white;
 border:1px solid #333;
 border-radius:6px;
+padding:8px;
+}
+
+select,input,button{
+width:100%;
 padding:10px;
+margin-top:6px;
+border-radius:6px;
+border:none;
 font-size:14px;
 }
 
-button {
-width:100%;
-padding:12px;
-margin-top:8px;
-border:none;
-border-radius:6px;
+button{
 background:#16a34a;
 color:white;
 font-weight:bold;
-font-size:16px;
 }
 
-#player {
+#player{
 flex:1;
 display:flex;
 align-items:center;
 justify-content:center;
-padding:20px;
 text-align:center;
+padding:20px;
 font-size:28px;
 line-height:1.4;
+background:black;
+background-size:cover;
+background-position:center;
 }
 </style>
 </head>
@@ -60,155 +65,197 @@ line-height:1.4;
 <body>
 
 <div id="control">
-<textarea id="textInput" placeholder="Paste cerita (pisahkan paragraf dengan ENTER)..."></textarea>
 
-<button onclick="generate()">GENERATE SCENE</button>
-<button onclick="play()">PLAY TYPEWRITER</button>
+<textarea id="textInput" placeholder="Paste cerita..."></textarea>
+
+<select onchange="changeBG(this.value)">
+<option value="black">Hitam Cinematic</option>
+<option value="gradient">Gradient Gelap</option>
+</select>
+
+<input type="file" accept="image/*" onchange="uploadBG(this)">
+
+<button onclick="generate()">GENERATE</button>
+<button onclick="play()">PLAY</button>
 <button onclick="startRecord()">START RECORD</button>
 <button onclick="stopRecord()">STOP RECORD</button>
+
 </div>
 
-<div id="player">
-Ready...
-</div>
+<div id="player">READY</div>
 
 <script>
 
-// =======================
-// GLOBAL STATE
-// =======================
+// ===== STATE =====
 
-let scenes = [];
-let currentScene = 0;
-let charIndex = 0;
-let typingTimer = null;
-let paused = false;
+let scenes=[];
+let currentScene=0;
+let charIndex=0;
+let timer=null;
+let paused=false;
 
 let mediaRecorder;
-let recordedChunks = [];
+let recordedChunks=[];
 
-// =======================
-// GENERATE SCENE
-// =======================
+// ===== BACKGROUND =====
+
+function changeBG(mode){
+let p=document.getElementById("player");
+
+if(mode==="black"){
+p.style.background="black";
+}
+if(mode==="gradient"){
+p.style.background="linear-gradient(120deg,#020024,#090979,#000)";
+}
+}
+
+function uploadBG(input){
+let file=input.files[0];
+let reader=new FileReader();
+reader.onload=e=>{
+document.getElementById("player").style.background=`url(${e.target.result})`;
+};
+reader.readAsDataURL(file);
+}
+
+// ===== MUSIC GENERATOR (SAFE) =====
+
+let audioCtx;
+let osc;
+let gainNode;
+
+function startMusic(){
+
+audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+
+osc=audioCtx.createOscillator();
+gainNode=audioCtx.createGain();
+
+osc.type="sine";
+osc.frequency.value=174; // cinematic ambient
+
+gainNode.gain.value=0.05;
+
+osc.connect(gainNode);
+gainNode.connect(audioCtx.destination);
+
+osc.start();
+}
+
+function stopMusic(){
+if(osc){
+osc.stop();
+}
+}
+
+// ===== GENERATE =====
 
 function generate(){
 
-let text = document.getElementById("textInput").value;
+let text=document.getElementById("textInput").value;
 
-if(text.trim().length < 20){
-document.getElementById("player").innerHTML = "⚠️ Masukkan cerita dulu";
+if(text.trim().length<20){
+document.getElementById("player").innerHTML="Masukin cerita dulu";
 return;
 }
 
-let parts = text.split(/\n+/).filter(p => p.trim() !== "");
+let parts=text.split(/\n+/).filter(x=>x.trim()!="");
 
-scenes = [];
+scenes=[];
 
-// SPLIT 3 PARAGRAF PER SCENE
-for(let i=0; i<parts.length; i+=3){
-scenes.push(parts.slice(i, i+3).join(" "));
+for(let i=0;i<parts.length;i+=3){
+scenes.push(parts.slice(i,i+3).join(" "));
 }
 
-currentScene = 0;
-charIndex = 0;
+currentScene=0;
+charIndex=0;
 
-document.getElementById("player").innerHTML =
-"✅ Scene siap: " + scenes.length + "<br>Tekan PLAY";
+document.getElementById("player").innerHTML="Scene siap: "+scenes.length;
 
-console.log("Scenes:", scenes);
 }
 
-// =======================
-// PLAY TYPEWRITER
-// =======================
+// ===== PLAY TYPEWRITER =====
 
 function play(){
 
-if(scenes.length === 0){
-document.getElementById("player").innerHTML = "⚠️ Klik GENERATE dulu";
+if(scenes.length==0){
+document.getElementById("player").innerHTML="Klik generate dulu";
 return;
 }
 
-paused = false;
+startMusic();
+
+paused=false;
 runTyping();
 }
 
 function runTyping(){
 
-clearInterval(typingTimer);
+clearInterval(timer);
 
-if(currentScene >= scenes.length){
-document.getElementById("player").innerHTML += "<br><br>✔️ Selesai";
+if(currentScene>=scenes.length){
+document.getElementById("player").innerHTML+="<br>SELESAI";
+stopMusic();
 return;
 }
 
-let player = document.getElementById("player");
-let text = scenes[currentScene];
+let player=document.getElementById("player");
+let txt=scenes[currentScene];
 
-typingTimer = setInterval(()=>{
+timer=setInterval(()=>{
 
 if(paused) return;
 
-player.innerHTML = text.substring(0, charIndex);
+player.innerHTML=txt.substring(0,charIndex);
 charIndex++;
 
-if(charIndex > text.length){
-clearInterval(typingTimer);
-
+if(charIndex>txt.length){
+clearInterval(timer);
 setTimeout(()=>{
 currentScene++;
-charIndex = 0;
+charIndex=0;
 runTyping();
 },1200);
+}
+
+},35);
 
 }
 
-},35); // SPEED VIRAL NORMAL
-}
-
-// =======================
-// RECORD VIDEO
-// =======================
+// ===== RECORD =====
 
 async function startRecord(){
 
-let stream = await navigator.mediaDevices.getDisplayMedia({
-video: { frameRate: 60 },
-audio: false
+let stream=await navigator.mediaDevices.getDisplayMedia({
+video:{frameRate:60},
+audio:true
 });
 
-mediaRecorder = new MediaRecorder(stream, {
-mimeType: "video/webm"
-});
+mediaRecorder=new MediaRecorder(stream);
 
-recordedChunks = [];
+recordedChunks=[];
 
-mediaRecorder.ondataavailable = e => {
-if(e.data.size > 0){
-recordedChunks.push(e.data);
-}
+mediaRecorder.ondataavailable=e=>{
+if(e.data.size>0) recordedChunks.push(e.data);
 };
 
-mediaRecorder.onstop = () => {
+mediaRecorder.onstop=()=>{
 
-let blob = new Blob(recordedChunks, { type: "video/webm" });
-let url = URL.createObjectURL(blob);
+let blob=new Blob(recordedChunks,{type:"video/webm"});
+let url=URL.createObjectURL(blob);
 
-let a = document.createElement("a");
-a.href = url;
-a.download = "creator_pro_video.webm";
+let a=document.createElement("a");
+a.href=url;
+a.download="creator_video_pro.webm";
 a.click();
 
 };
 
 mediaRecorder.start();
 
-document.getElementById("player").innerHTML = "🔴 Recording...";
+document.getElementById("player").innerHTML="RECORDING...";
 }
-
-// =======================
-// STOP RECORD
-// =======================
 
 function stopRecord(){
 if(mediaRecorder){
@@ -216,18 +263,10 @@ mediaRecorder.stop();
 }
 }
 
-// =======================
-// TAB SAFE MODE
-// =======================
+// ===== TAB SAFE =====
 
-document.addEventListener("visibilitychange", ()=>{
-
-if(document.hidden){
-paused = true;
-}else{
-paused = false;
-}
-
+document.addEventListener("visibilitychange",()=>{
+paused=document.hidden;
 });
 
 </script>
