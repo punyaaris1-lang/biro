@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Creator Pro V5 Stable</title>
+<title>Creator Pro V5 Stable Final</title>
 
 <style>
 body {
 margin:0;
 background:black;
 color:white;
-font-family:Arial;
+font-family:Arial, sans-serif;
 display:flex;
 flex-direction:column;
 height:100vh;
@@ -23,12 +23,13 @@ background:#111;
 
 textarea {
 width:100%;
-height:120px;
+height:130px;
 background:#000;
 color:white;
 border:1px solid #333;
 border-radius:6px;
-padding:8px;
+padding:10px;
+font-size:14px;
 }
 
 button {
@@ -59,104 +60,155 @@ line-height:1.4;
 <body>
 
 <div id="control">
-<textarea id="textInput" placeholder="Paste cerita disini..."></textarea>
+<textarea id="textInput" placeholder="Paste cerita (pisahkan paragraf dengan ENTER)..."></textarea>
+
 <button onclick="generate()">GENERATE SCENE</button>
-<button onclick="startPlayback()">PLAY</button>
+<button onclick="play()">PLAY TYPEWRITER</button>
 <button onclick="startRecord()">START RECORD</button>
 <button onclick="stopRecord()">STOP RECORD</button>
 </div>
 
-<div id="player"></div>
+<div id="player">
+Ready...
+</div>
 
 <script>
-let scenes=[];
-let currentScene=0;
-let charIndex=0;
-let typingInterval=null;
-let paused=false;
+
+// =======================
+// GLOBAL STATE
+// =======================
+
+let scenes = [];
+let currentScene = 0;
+let charIndex = 0;
+let typingTimer = null;
+let paused = false;
 
 let mediaRecorder;
-let recordedChunks=[];
+let recordedChunks = [];
+
+// =======================
+// GENERATE SCENE
+// =======================
 
 function generate(){
-let text=document.getElementById("textInput").value.trim();
-if(!text){ alert("Masukkan teks"); return;}
 
-let parts=text.split(/\n+/).filter(x=>x.trim()!="");
+let text = document.getElementById("textInput").value;
 
-scenes=[];
-for(let i=0;i<parts.length;i+=3){
-scenes.push(parts.slice(i,i+3).join(" "));
-}
-
-alert("Scene dibuat: "+scenes.length);
-}
-
-function startPlayback(){
-if(!scenes.length){
-alert("Generate dulu");
+if(text.trim().length < 20){
+document.getElementById("player").innerHTML = "⚠️ Masukkan cerita dulu";
 return;
 }
 
-paused=false;
+let parts = text.split(/\n+/).filter(p => p.trim() !== "");
+
+scenes = [];
+
+// SPLIT 3 PARAGRAF PER SCENE
+for(let i=0; i<parts.length; i+=3){
+scenes.push(parts.slice(i, i+3).join(" "));
+}
+
+currentScene = 0;
+charIndex = 0;
+
+document.getElementById("player").innerHTML =
+"✅ Scene siap: " + scenes.length + "<br>Tekan PLAY";
+
+console.log("Scenes:", scenes);
+}
+
+// =======================
+// PLAY TYPEWRITER
+// =======================
+
+function play(){
+
+if(scenes.length === 0){
+document.getElementById("player").innerHTML = "⚠️ Klik GENERATE dulu";
+return;
+}
+
+paused = false;
 runTyping();
 }
 
 function runTyping(){
 
-if(currentScene>=scenes.length){
-clearInterval(typingInterval);
+clearInterval(typingTimer);
+
+if(currentScene >= scenes.length){
+document.getElementById("player").innerHTML += "<br><br>✔️ Selesai";
 return;
 }
 
-let player=document.getElementById("player");
+let player = document.getElementById("player");
+let text = scenes[currentScene];
 
-typingInterval=setInterval(()=>{
+typingTimer = setInterval(()=>{
 
 if(paused) return;
 
-let txt=scenes[currentScene];
-
-player.innerHTML = txt.substring(0,charIndex);
+player.innerHTML = text.substring(0, charIndex);
 charIndex++;
 
-if(charIndex>txt.length){
-clearInterval(typingInterval);
+if(charIndex > text.length){
+clearInterval(typingTimer);
+
 setTimeout(()=>{
 currentScene++;
-charIndex=0;
+charIndex = 0;
 runTyping();
 },1200);
+
 }
 
-,35); // viral speed
+},35); // SPEED VIRAL NORMAL
 }
+
+// =======================
+// RECORD VIDEO
+// =======================
 
 async function startRecord(){
 
-let stream=await navigator.mediaDevices.getDisplayMedia({
-video:{frameRate:60},
-audio:false
+let stream = await navigator.mediaDevices.getDisplayMedia({
+video: { frameRate: 60 },
+audio: false
 });
 
-mediaRecorder=new MediaRecorder(stream,{mimeType:"video/webm"});
-recordedChunks=[];
+mediaRecorder = new MediaRecorder(stream, {
+mimeType: "video/webm"
+});
 
-mediaRecorder.ondataavailable=e=>{
-if(e.data.size>0) recordedChunks.push(e.data);
+recordedChunks = [];
+
+mediaRecorder.ondataavailable = e => {
+if(e.data.size > 0){
+recordedChunks.push(e.data);
+}
 };
 
-mediaRecorder.onstop=()=>{
-let blob=new Blob(recordedChunks,{type:"video/webm"});
-let url=URL.createObjectURL(blob);
-let a=document.createElement("a");
-a.href=url;
-a.download="creator_pro_v5_stable.webm";
+mediaRecorder.onstop = () => {
+
+let blob = new Blob(recordedChunks, { type: "video/webm" });
+let url = URL.createObjectURL(blob);
+
+let a = document.createElement("a");
+a.href = url;
+a.download = "creator_pro_video.webm";
 a.click();
+
 };
 
 mediaRecorder.start();
+
+document.getElementById("player").innerHTML = "🔴 Recording...";
 }
+
+// =======================
+// STOP RECORD
+// =======================
 
 function stopRecord(){
 if(mediaRecorder){
@@ -164,19 +216,20 @@ mediaRecorder.stop();
 }
 }
 
-/* ===== TAB SAFE MODE ===== */
+// =======================
+// TAB SAFE MODE
+// =======================
 
 document.addEventListener("visibilitychange", ()=>{
 
 if(document.hidden){
-paused=true;
-console.log("Paused (tab hidden)");
+paused = true;
 }else{
-paused=false;
-console.log("Resumed");
+paused = false;
 }
 
 });
+
 </script>
 
 </body>
