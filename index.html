@@ -3,340 +3,493 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SUPERADMIN - GOD MODE V2</title>
+    <title>SUPER ADMIN - CENTRAL OPS</title>
     <link href="https://fonts.googleapis.com/css2?family=Teko:wght@300;500;700&family=JetBrains+Mono:wght@400;700&family=Black+Ops+One&display=swap" rel="stylesheet">
     <style>
-        /* === CORE THEME VARIABLES (DINAMIS) === */
-        :root {
-            --bg: #050505; 
-            --panel: #111; 
-            --primary: #FFD700; /* Warna Utama (Berubah per cabang) */
-            --glow: rgba(255, 215, 0, 0.3); /* Glow Utama */
-            --text-main: #fff;
+        /* === STYLE ULTIMATE (ADAPTIVE THEME) === */
+        :root { 
+            --bg: #050505; --panel: #111; --border: #333; 
+            --primary: #FFD700; /* INI AKAN BERUBAH SESUAI CABANG */
+            --red: #FF003C; --blue: #00F0FF; --green: #00FF00; --purple: #9D00FF; --neon: #39FF14; --orange: #FFAA00;
+            --term-bg: #000; --term-text: #0f0; 
         }
-
-        body { background: var(--bg); color: var(--text-main); font-family: 'JetBrains Mono', monospace; padding: 0; margin: 0; min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; transition: background 0.5s; }
+        body { background: #0a0a0a; color: #fff; font-family: 'JetBrains Mono', monospace; padding: 10px; font-size: 11px; margin: 0; min-height: 100vh; display:flex; flex-direction:column; }
         
-        /* UTILS */
+        /* UTILITAS */
         .hidden { display: none !important; }
-        .btn-action { cursor: pointer; border: 1px solid var(--primary); background: rgba(0,0,0,0.3); color: var(--primary); font-family: 'Teko'; font-size: 16px; padding: 5px 10px; text-transform: uppercase; transition: 0.3s; }
-        .btn-action:hover { background: var(--primary); color: #000; box-shadow: 0 0 15px var(--glow); }
-        .box { border: 1px solid #333; padding: 15px; margin-bottom: 15px; background: rgba(0,0,0,0.5); border-radius: 8px; border-left: 3px solid var(--primary); }
-        h3 { margin: 0 0 15px 0; color: var(--primary); border-bottom: 1px solid #333; padding-bottom: 5px; font-family: 'Teko', sans-serif; font-size: 22px; letter-spacing: 1px; text-shadow: 0 0 10px var(--glow); }
-
-        /* === LOBBY SCREEN === */
-        #lobbyScreen { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; z-index: 10; }
-        .lobby-title { font-family: 'Black Ops One'; font-size: 40px; color: #fff; margin-bottom: 30px; text-shadow: 0 0 20px rgba(255,255,255,0.2); text-align: center; }
+        .box { border: 1px solid #333; padding: 15px; margin-bottom: 15px; background: #000; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); border-left: 3px solid var(--primary); }
+        h3 { margin: 0 0 15px 0; color: var(--primary); border-bottom: 1px solid #333; padding-bottom: 5px; font-family: 'Teko', sans-serif; font-size: 20px; letter-spacing: 1px; }
         
-        .grid-branches { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; width: 100%; max-width: 800px; }
-        .branch-card { 
-            background: #111; border: 1px solid #333; border-radius: 10px; padding: 20px; 
-            text-align: center; cursor: pointer; transition: all 0.3s; position: relative; overflow: hidden;
-            display: flex; flex-direction: column; align-items: center;
-        }
-        .branch-card:hover { transform: translateY(-5px); border-color: var(--card-color); box-shadow: 0 0 30px var(--card-glow); }
-        .branch-logo { width: 80px; height: 80px; object-fit: contain; margin-bottom: 15px; filter: drop-shadow(0 0 5px rgba(255,255,255,0.2)); }
-        .branch-name { font-family: 'Black Ops One'; font-size: 18px; color: #fff; text-transform: uppercase; }
-        .branch-loc { font-size: 10px; color: #888; font-family: 'Teko'; letter-spacing: 2px; }
+        /* TOMBOL ASLI */
+        button { cursor: pointer; padding: 8px 12px; margin: 0; font-weight: bold; font-family: 'Teko'; font-size: 14px; letter-spacing: 0.5px; border-radius: 4px; transition: 0.2s; border: none; text-transform: uppercase; }
+        button:hover { filter: brightness(1.2); transform: translateY(-1px); }
+        .btn-gold { background: linear-gradient(45deg, #b8860b, var(--primary)); color: #000; border: 1px solid var(--primary); }
+        .btn-red { background: linear-gradient(45deg, #900, #d00); color: #fff; border: 1px solid #f00; }
+        .btn-blue { background: linear-gradient(45deg, #005, #009); color: #fff; border: 1px solid #00f; }
+        .btn-green { background: linear-gradient(45deg, #006400, #00FF00); color: #000; border: 1px solid #00FF00; }
+        .btn-purple { background: linear-gradient(45deg, #4B0082, #9D00FF); color: #fff; border: 1px solid #9D00FF; }
+        .btn-orange { background: linear-gradient(45deg, #FF8C00, #FFAA00); color: #000; border: 1px solid #FFAA00; }
+        .btn-mini { padding: 4px 8px; font-size: 12px; margin: 2px; }
+        
+        /* INPUTS */
+        input, select { background: #1a1a1a; color: #fff; border: 1px solid #444; padding: 8px; border-radius: 4px; font-family: 'JetBrains Mono'; width: 100%; box-sizing: border-box; outline:none; }
+        input:focus { border-color: var(--primary); }
 
-        /* === CONTROL PANEL === */
-        #controlPanel { padding: 15px; display: none; animation: fadeIn 0.5s; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid var(--primary); }
-        .active-branch-title { font-family: 'Black Ops One'; font-size: 28px; color: var(--primary); text-transform: uppercase; }
-        .btn-back { background: #333; color: #fff; border: none; padding: 8px 20px; font-family: 'Teko'; font-size: 18px; cursor: pointer; clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px); }
-        .btn-back:hover { background: #555; }
-
-        /* SLOT GRID DINAMIS */
+        /* GRID SLOTS */
         .slot-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px; }
-        .slot-item { border: 1px solid #333; padding: 10px; background: #000; text-align: center; border-radius: 5px; min-height: 120px; display: flex; flex-direction: column; justify-content: space-between; }
-        .slot-active { border-color: var(--primary); box-shadow: inset 0 0 20px rgba(0,0,0,0.8); background: linear-gradient(180deg, rgba(0,0,0,0), rgba(255,255,255,0.03)); }
+        .slot-item { border: 1px solid #333; padding: 10px; background: #050505; text-align: center; border-radius: 5px; min-height: 100px; display: flex; flex-direction: column; justify-content: space-between; }
         
-        /* LOGIN OVERLAY */
-        #loginOverlay { position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        /* LOGS */
+        .term-container { background: var(--term-bg); border: 1px solid #333; height: 150px; overflow-y: auto; padding: 10px; font-size: 10px; color: #ccc; border-radius: 5px; display: flex; flex-direction: column-reverse; }
+        .log-line { margin-bottom: 4px; border-bottom: 1px solid #111; padding-bottom: 2px; }
+
+        /* === LOBBY SYSTEM STYLES === */
+        #lobbyScreen { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10; padding: 20px; }
+        .lobby-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 20px; width: 100%; max-width: 600px; }
+        .branch-card { 
+            background: #111; border: 1px solid #333; border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; transition: 0.3s;
+            display: flex; flex-direction: column; align-items: center; position: relative; overflow: hidden;
+        }
+        .branch-card:hover { transform: scale(1.05); border-color: var(--c-color); box-shadow: 0 0 20px var(--c-glow); }
+        .branch-logo { width: 80px; height: 80px; object-fit: contain; margin-bottom: 10px; filter: drop-shadow(0 0 10px rgba(0,0,0,0.5)); }
+        
+        /* HEADER PANEL */
+        .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid var(--primary); padding-bottom: 10px; }
+        .btn-back { background: #222; color: #aaa; border: 1px solid #444; }
+
+        /* QR DISPLAY */
+        .qr-display-box { 
+            margin-top: 15px; background: #fff; padding: 15px; border-radius: 10px; 
+            display: none; flex-direction: column; align-items: center; 
+            box-shadow: 0 0 20px var(--primary);
+        }
+        .qr-display-box img { width: 180px; height: 180px; }
     </style>
 </head>
 <body>
 
-    <div id="loginOverlay">
-        <h1 style="font-family:'Black Ops One'; color:#FFD700; margin-bottom:10px;">GOD MODE V2</h1>
-        <input type="password" id="pinInput" placeholder="ACCESS CODE" style="background:none; border:1px solid #333; border-bottom:2px solid #FFD700; color:#fff; text-align:center; font-size:24px; font-family:'Teko'; padding:10px; width:200px; outline:none;">
-        <button onclick="checkPin()" style="margin-top:20px; padding:10px 30px; background:#FFD700; border:none; font-family:'Black Ops One'; cursor:pointer;">ENTER</button>
-    </div>
+    <div id="lobbyScreen">
+        <h1 style="font-family:'Black Ops One'; font-size:32px; color:#fff; margin-bottom:10px;">CENTRAL COMMAND</h1>
+        <div style="font-size:12px; color:#666; margin-bottom:30px; letter-spacing:3px;">SELECT AREA OF OPERATION</div>
 
-    <div id="lobbyScreen" class="hidden">
-        <div class="lobby-title">SELECT COMMAND CENTER</div>
-        <div class="grid-branches">
-            
-            <div class="branch-card" onclick="openBranch('GADING')" style="--card-color:#00F0FF; --card-glow:rgba(0, 240, 255, 0.4);">
-                <img src="1000307954.png" class="branch-logo" onerror="this.src='https://placehold.co/100x100?text=MLU'">
-                <div class="branch-name" style="color:#00F0FF">KELAPA GADING</div>
-                <div class="branch-loc">NORTH SECTOR</div>
+        <div class="lobby-grid">
+            <div class="branch-card" onclick="loadBranch('GADING')" style="--c-color:#00F0FF; --c-glow:rgba(0,240,255,0.4)">
+                <img src="1000307954.png" class="branch-logo" onerror="this.src='https://placehold.co/100?text=GDG'">
+                <div style="font-family:'Black Ops One'; color:#00F0FF; font-size:16px;">GADING</div>
             </div>
-
-            <div class="branch-card" onclick="openBranch('KC')" style="--card-color:#FFD700; --card-glow:rgba(255, 215, 0, 0.4);">
-                <img src="1000320559.png" class="branch-logo" onerror="this.src='https://placehold.co/100x100?text=KC'">
-                <div class="branch-name" style="color:#FFD700">KARTIKA CHANDRA</div>
-                <div class="branch-loc">HQ SECTOR</div>
+            <div class="branch-card" onclick="loadBranch('KC')" style="--c-color:#FFD700; --c-glow:rgba(255,215,0,0.4)">
+                <img src="1000320559.png" class="branch-logo" onerror="this.src='https://placehold.co/100?text=KC'">
+                <div style="font-family:'Black Ops One'; color:#FFD700; font-size:16px;">KARTIKA</div>
             </div>
-
-            <div class="branch-card" onclick="openBranch('MARGONDA')" style="--card-color:#E0FFFF; --card-glow:rgba(224, 255, 255, 0.4);">
-                <img src="1000320534.png" class="branch-logo" onerror="this.src='https://placehold.co/100x100?text=DPK'">
-                <div class="branch-name" style="color:#E0FFFF">MARGONDA</div>
-                <div class="branch-loc">DEPOK RAYA</div>
+            <div class="branch-card" onclick="loadBranch('MARGONDA')" style="--c-color:#E0FFFF; --c-glow:rgba(224,255,255,0.4)">
+                <img src="1000320534.png" class="branch-logo" onerror="this.src='https://placehold.co/100?text=DPK'">
+                <div style="font-family:'Black Ops One'; color:#E0FFFF; font-size:16px;">MARGONDA</div>
             </div>
-
-            <div class="branch-card" onclick="openBranch('RADAL')" style="--card-color:#CCFF00; --card-glow:rgba(204, 255, 0, 0.4);">
-                <div style="width:80px; height:80px; display:flex; align-items:center; justify-content:center; border:2px dashed #CCFF00; border-radius:50%; margin-bottom:15px; font-size:30px;">📡</div>
-                <div class="branch-name" style="color:#CCFF00">RADIO DALAM</div>
-                <div class="branch-loc">SOUTH SECTOR</div>
+            <div class="branch-card" onclick="loadBranch('RADAL')" style="--c-color:#CCFF00; --c-glow:rgba(204,255,0,0.4)">
+                <div style="width:80px; height:80px; display:flex; align-items:center; justify-content:center; font-size:40px;">📡</div>
+                <div style="font-family:'Black Ops One'; color:#CCFF00; font-size:16px;">RADAL</div>
             </div>
-
         </div>
     </div>
 
-    <div id="controlPanel">
-        <div class="top-bar">
+    <div id="controlPanel" class="hidden">
+        
+        <div class="panel-header">
             <div>
-                <div class="active-branch-title" id="lblBranchName">NAMA CABANG</div>
-                <div style="font-size:10px; color:#888;">GOD MODE ACTIVE // <span id="lblConnection">CONNECTED</span></div>
+                <span style="font-family:'Teko'; font-size:28px; color:var(--primary);" id="lblBranchTitle">SUPER ADMIN</span>
+                <span style="color:#fff; font-size:12px; margin-left:5px;">(GOD MODE)</span>
             </div>
-            <button class="btn-back" onclick="backToLobby()">⬅ LOBBY</button>
+            <button onclick="closeBranch()" class="btn-back">⬅ KEMBALI KE LOBBY</button>
         </div>
 
         <div class="box">
-            <h3>Monitoring Slot & Kudeta</h3>
-            <div id="slotContainer" class="slot-grid">
+            <h3>1. LIVE EDIT & PAKSA SLOT (MASUK TANPA ANTRIAN)</h3>
+            <div id="slotGridArea" class="slot-grid">
                 </div>
+            <div style="margin-top:15px; padding-top:10px; border-top:1px dashed #333;">
+                <div style="color:#888; margin-bottom:5px;">ANTRIAN WAITING LIST:</div>
+                <div id="queueList" style="max-height:150px; overflow-y:auto; border:1px solid #333; padding:5px; background:#050505;"></div>
+            </div>
         </div>
 
-        <div class="box">
-            <h3>Daftar Antrian</h3>
-            <div id="queueList" style="max-height:200px; overflow-y:auto;"></div>
+        <div class="box" style="border-left-color: var(--blue);">
+            <h3 style="color:var(--blue);">2. SET JABATAN PENGURUS</h3>
+            <div style="display:flex; gap:5px; margin-bottom:5px;">
+                <input id="rolePlat" placeholder="PLAT NOMOR (Cth: B 1234 MLU)" style="flex:2; text-transform:uppercase;">
+                <select id="roleSelect" style="flex:2;">
+                    <option value="MEMBER">👤 MEMBER (DEFAULT)</option>
+                    <option value="CUSTOM">✍ INPUT MANUAL...</option>
+                    <optgroup label="--- BOARD ---">
+                        <option value="KETUM">👑 KETUA UMUM</option>
+                        <option value="WAKETUM">⭐ WAKETUM</option>
+                        <option value="PEMBINA">📜 PEMBINA</option>
+                        <option value="SEKRETARIS">💻 SEKJEN</option>
+                    </optgroup>
+                    <optgroup label="--- OPS ---">
+                        <option value="KORLAP">🔴 KORLAP</option>
+                        <option value="SATGAS">⚡ SATGAS</option>
+                        <option value="HUMAS">📢 HUMAS</option>
+                    </optgroup>
+                </select>
+            </div>
+            <button onclick="setJabatan()" class="btn-blue" style="width:100%;">SIMPAN & UPDATE BADGE</button>
         </div>
 
-        <div class="box" style="border-color: #ff0000;">
-            <h3 style="color:#ff0000">DANGER ZONE</h3>
+        <div class="box" style="border-left-color: var(--purple);">
+            <h3 style="color:var(--purple);">3. SAKLAR KEAMANAN (QR)</h3>
+            
+            <div style="text-align:center; margin-bottom:10px;">
+                <div style="color:#aaa; font-size:10px;">STATUS SAAT INI</div>
+                <div id="activeQRDisplay" style="font-family:'Teko'; font-size:24px; color:#fff; font-weight:bold;">LOADING...</div>
+                
+                <div id="qrContainer" class="qr-display-box">
+                    <img id="qrImg" src="" alt="QR CODE">
+                    <div id="qrTextLabel" style="font-family:'Teko'; font-size:24px; color:#000; font-weight:bold;"></div>
+                </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns: 1fr 2fr; gap:10px;">
+                <button onclick="setActiveQR('OFF')" class="btn-green">🌍 MODE GPS (OFF)</button>
+                <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:2px;">
+                    <button onclick="setActiveQR('A')" class="btn-purple">KD-A</button>
+                    <button onclick="setActiveQR('B')" class="btn-purple">KD-B</button>
+                    <button onclick="setActiveQR('C')" class="btn-purple">KD-C</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="box" style="border-left-color: var(--green);">
+            <h3 style="color:var(--green);">4. DATA MEMBER</h3>
+            <button onclick="loadMembers()" class="btn-green" style="width:100%; margin-bottom:10px;">👥 LIHAT DATA MEMBER</button>
+            <div id="memberListArea" style="max-height:200px; overflow-y:auto; border:1px solid #333; display:none;"></div>
+        </div>
+
+        <div class="box" style="border-left-color: var(--orange);">
+            <h3 style="color:var(--orange);">5. LIVE BROADCAST</h3>
+            <div style="display:flex; gap:5px;">
+                <input id="broadcastInput" placeholder="Ketik pesan..." style="flex:3;">
+                <button onclick="kirimBroadcast()" class="btn-orange" style="flex:1;">📢 KIRIM</button>
+            </div>
+        </div>
+
+        <div class="box" style="border-left-color: var(--red);">
+            <h3 style="color:var(--red);">6. DANGER ZONE</h3>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-                <button onclick="resetNumber()" class="btn-action" style="border-color:#ff8800; color:#ff8800;">🔄 RESET NOMOR (1)</button>
-                <button onclick="wipeData()" class="btn-action" style="border-color:#ff0000; color:#ff0000;">☢ WIPE ALL DATA</button>
+                <button onclick="resetDaily()" class="btn-gold">🔄 RESET NOMOR HARIAN</button>
+                <button onclick="resetTotal()" class="btn-red">☣ WIPE TOTAL (0)</button>
             </div>
         </div>
 
         <div class="box">
-            <h3>System Logs</h3>
-            <div id="logArea" style="height:100px; overflow-y:auto; font-size:10px; color:#666;">Waiting...</div>
+            <h3>SYSTEM LOGS</h3>
+            <div class="term-container" id="termLog"><div class="log-line">Waiting for connection...</div></div>
         </div>
+
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, doc, onSnapshot, runTransaction, collection, addDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, doc, onSnapshot, runTransaction, collection, addDoc, query, orderBy, limit, setDoc, getDocs, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // === 1. KONFIGURASI CABANG (DATABASE & TEMA) ===
-        const BRANCH_CONFIG = {
-            "GADING": {
-                name: "FC KELAPA GADING",
-                color: "#00F0FF", // Neon Blue
-                maxSlot: 3,
-                config: { apiKey: "AIzaSyB666i9lYWIpxOdkwpoX9EvFvHLmHczeq8", authDomain: "fcgadingnew22.firebaseapp.com", projectId: "fcgadingnew22", appId: "1:537736846678:web:53788d71a196423ac08af7" }
+        // === CONFIG CABANG ===
+        const BRANCHES = {
+            "GADING": { 
+                name: "FC GADING", color: "#00F0FF", maxSlot: 3,
+                cfg: { apiKey: "AIzaSyB666i9lYWIpxOdkwpoX9EvFvHLmHczeq8", authDomain: "fcgadingnew22.firebaseapp.com", projectId: "fcgadingnew22", appId: "1:537736846678:web:53788d71a196423ac08af7" }
             },
-            "KC": {
-                name: "FC KARTIKA CHANDRA",
-                color: "#FFD700", // Gold
-                maxSlot: 3,
-                config: { apiKey: "AIzaSyDDVYQSjmJEn_RvIUotSxbh8L-ysJMCthk", authDomain: "kartikachandrafc.firebaseapp.com", projectId: "kartikachandrafc", appId: "1:677704449500:web:671df8ae5cf6e66d0b6319" }
+            "KC": { 
+                name: "FC KARTIKA CHANDRA", color: "#FFD700", maxSlot: 3,
+                cfg: { apiKey: "AIzaSyDDVYQSjmJEn_RvIUotSxbh8L-ysJMCthk", authDomain: "kartikachandrafc.firebaseapp.com", projectId: "kartikachandrafc", appId: "1:677704449500:web:671df8ae5cf6e66d0b6319" }
             },
-            "MARGONDA": {
-                name: "FC MARGONDA",
-                color: "#E0FFFF", // Cyan/White
-                maxSlot: 3,
-                config: { apiKey: "AIzaSyAagBU9TGkVIHFk-eMFew4BK_ZG5UgQyYA", authDomain: "margonda-30359.firebaseapp.com", projectId: "margonda-30359", appId: "1:224624594572:web:897879cc014d763bc1f5a9" }
+            "MARGONDA": { 
+                name: "FC MARGONDA", color: "#E0FFFF", maxSlot: 3,
+                cfg: { apiKey: "AIzaSyAagBU9TGkVIHFk-eMFew4BK_ZG5UgQyYA", authDomain: "margonda-30359.firebaseapp.com", projectId: "margonda-30359", appId: "1:224624594572:web:897879cc014d763bc1f5a9" }
             },
-            "RADAL": {
-                name: "FC RADIO DALAM",
-                color: "#CCFF00", // Neon Yellow
-                maxSlot: 3,
-                config: { apiKey: "AIzaSyAAwGboEDOjh57ZP1157SCFxR4LC-DPSeg", authDomain: "fc-radio-dalam.firebaseapp.com", projectId: "fc-radio-dalam", appId: "1:823688693955:web:330a75ed8dd445d6137a76" }
+            "RADAL": { 
+                name: "FC RADIO DALAM", color: "#CCFF00", maxSlot: 3,
+                cfg: { apiKey: "AIzaSyAAwGboEDOjh57ZP1157SCFxR4LC-DPSeg", authDomain: "fc-radio-dalam.firebaseapp.com", projectId: "fc-radio-dalam", appId: "1:823688693955:web:330a75ed8dd445d6137a76" }
             }
         };
 
-        // GLOBAL VARIABLES
-        let currentApp = null;
-        let currentDb = null;
-        let unsubscribeSnap = null;
-        let currentBranchId = null;
+        // VARIABLES
+        let curApp = null;
+        let db = null; // Ini akan berubah sesuai cabang
+        let unsub = null;
+        let unsubLog = null;
+        let curBranchData = null;
+        let cachedData = null;
 
-        // AUTH
-        window.checkPin = () => {
-            const p = document.getElementById('pinInput').value;
-            if(p === "090815") { // PIN Superadmin
-                document.getElementById('loginOverlay').style.display = 'none';
-                document.getElementById('lobbyScreen').classList.remove('hidden');
-            } else {
-                alert("ACCESS DENIED");
-            }
-        };
+        // AUTH SIMPLE
+        const savedPin = localStorage.getItem('god_sess');
+        if(!savedPin) {
+            const p = prompt("ENTER GOD MODE PIN:");
+            if(p !== "090815") { alert("WRONG PIN"); document.body.innerHTML = "ACCESS DENIED"; throw "Stop"; }
+            localStorage.setItem('god_sess', '1');
+        }
 
-        // === 2. ENGINE SWITCHER ===
-        window.openBranch = (branchId) => {
-            currentBranchId = branchId;
-            const data = BRANCH_CONFIG[branchId];
-            
-            // UI Update
-            document.documentElement.style.setProperty('--primary', data.color);
-            document.documentElement.style.setProperty('--glow', data.color + '66'); // + Transparency
-            document.getElementById('lblBranchName').innerText = data.name;
-            
-            // Hide Lobby, Show Panel
-            document.getElementById('lobbyScreen').classList.add('hidden');
-            document.getElementById('controlPanel').style.display = 'block';
+        // === SYSTEM SWITCHER ===
+        window.loadBranch = (code) => {
+            const b = BRANCHES[code];
+            curBranchData = b;
 
-            // Connect Firebase
-            initFirebase(data);
-        };
+            // 1. Set Tema
+            document.documentElement.style.setProperty('--primary', b.color);
+            document.getElementById('lblBranchTitle').innerText = b.name;
 
-        window.backToLobby = () => {
-            // Disconnect
-            if(unsubscribeSnap) unsubscribeSnap();
-            currentDb = null;
-            if(currentApp)  currentApp = null; // Soft reset
-
-            // UI Reset
-            document.getElementById('controlPanel').style.display = 'none';
-            document.getElementById('lobbyScreen').classList.remove('hidden');
-            document.documentElement.style.setProperty('--primary', '#FFD700'); // Reset to Gold default
-        };
-
-        function initFirebase(branchData) {
-            // Karena SDK modul, kita init app baru tiap switch. 
-            // Note: Idealnya di cache, tapi untuk 4 cabang, init ulang aman untuk memutus koneksi lama.
+            // 2. Init Firebase Dynamic
+            if(curApp) curApp = null; // Soft reset logic
             try {
-                // Hapus instance lama jika nama sama (workaround firebase web)
-                currentApp = initializeApp(branchData.config, branchData.name + "_" + Date.now()); 
-                currentDb = getFirestore(currentApp);
+                curApp = initializeApp(b.cfg, code + "_" + Date.now());
+                db = getFirestore(curApp);
                 
-                startListening(branchData.maxSlot);
-            } catch(e) {
-                alert("Koneksi Error: " + e.message);
-            }
-        }
+                // 3. UI Switch
+                document.getElementById('lobbyScreen').classList.add('hidden');
+                document.getElementById('controlPanel').classList.remove('hidden');
 
-        // === 3. LOGIC MONITORING ===
-        function startListening(maxSlot) {
-            const mainRef = doc(currentDb, "antrian", "utama");
-            const logRef = collection(currentDb, "activityLog");
+                // 4. Start Listening
+                startSystem();
 
-            unsubscribeSnap = onSnapshot(mainRef, (snap) => {
-                if(!snap.exists()) {
-                    // Jika DB Kosong (Project Baru), buat struktur default
-                    alert("Database Kosong/Baru. Menginisialisasi...");
-                    runTransaction(currentDb, async(t) => { t.set(mainRef, { chargingSlots: Array(maxSlot).fill(null), waitingQueue: [] }); });
-                    return;
-                }
+            } catch(e) { alert("Error Init: " + e.message); }
+        };
+
+        window.closeBranch = () => {
+            if(unsub) unsub();
+            if(unsubLog) unsubLog();
+            document.getElementById('controlPanel').classList.add('hidden');
+            document.getElementById('lobbyScreen').classList.remove('hidden');
+            document.getElementById('termLog').innerHTML = '<div class="log-line">Disconnected...</div>';
+            document.getElementById('slotGridArea').innerHTML = '';
+        };
+
+        // === LOGIC UTAMA (COPY DARI SUPERADMIN ASLI TAPI ADAPTIF) ===
+        function startSystem() {
+            const mainRef = doc(db, "antrian", "utama");
+            const logRef = collection(db, "activityLog");
+
+            // LISTENER UTAMA
+            unsub = onSnapshot(mainRef, (snap) => {
+                if(!snap.exists()) return; // Handle DB kosong
                 const d = snap.data();
-                renderSlots(d.chargingSlots || [], maxSlot);
-                renderQueue(d.waitingQueue || []);
-            });
-        }
-
-        function renderSlots(slots, max) {
-            // Pastikan array sesuai max slot cabang
-            const slotArr = [...slots];
-            while(slotArr.length < max) slotArr.push(null);
-
-            const container = document.getElementById('slotContainer');
-            container.innerHTML = '';
-
-            slotArr.forEach((s, i) => {
-                const div = document.createElement('div');
-                if(s) {
-                    div.className = 'slot-item slot-active';
-                    div.innerHTML = `
-                        <div style="font-size:24px; font-weight:bold; color:var(--primary)">${s.plat}</div>
-                        <div style="font-size:12px; color:#fff">${s.userName}</div>
-                        <div style="margin-top:auto; width:100%;">
-                            <button onclick="window.kickUser(${i})" class="btn-action" style="width:100%; border-color:#ff0000; color:#ff0000; font-size:12px;">STOP / KICK</button>
-                        </div>
-                    `;
-                } else {
+                cachedData = d;
+                
+                // RENDER SLOT (DINAMIS SESUAI MAX SLOT)
+                const container = document.getElementById('slotGridArea');
+                container.innerHTML = '';
+                const slots = d.chargingSlots || [];
+                
+                // Loop sampai maxSlot cabang tersebut
+                for(let i=0; i<curBranchData.maxSlot; i++) {
+                    const s = slots[i];
+                    const div = document.createElement('div');
                     div.className = 'slot-item';
-                    div.innerHTML = `
-                        <div style="margin:auto; color:#555;">KOSONG</div>
-                        <button onclick="window.forceFill(${i})" class="btn-action" style="font-size:10px;">+ ISI</button>
-                    `;
+                    
+                    if(s) {
+                        div.style.border = "1px solid var(--primary)";
+                        div.innerHTML = `
+                            <div style="color:var(--primary); font-size:16px; font-weight:bold;">${s.plat}</div>
+                            <div style="font-size:12px;">${s.userName}</div>
+                            <div style="margin-top:auto; width:100%;">
+                                <button onclick="window.editData('slot', ${i})" class="btn-gold btn-mini" style="width:100%;">EDIT / KICK</button>
+                            </div>`;
+                    } else {
+                        // FITUR MASUK TANPA ANTRIAN (FORCE PUSH)
+                        div.style.border = "1px solid #333";
+                        div.innerHTML = `
+                            <div style="color:#555; margin:auto; font-size:10px;">KOSONG</div>
+                            <div style="width:100%;">
+                                <button onclick="window.forcePushSlot(${i})" class="btn-green btn-mini" style="width:100%;">+ ISI PAKSA</button>
+                            </div>`;
+                    }
+                    container.appendChild(div);
                 }
-                container.appendChild(div);
+
+                // RENDER QUEUE
+                const qList = document.getElementById('queueList'); 
+                qList.innerHTML = '';
+                (d.waitingQueue || []).forEach((q, i) => {
+                    const div = document.createElement('div');
+                    div.style.cssText = "display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #222; padding:5px;";
+                    div.innerHTML = `<span><span style="color:var(--primary)">#${q.qNo}</span> <b>${q.plat}</b> <span style="font-size:10px; color:#888;">${q.userName}</span></span><button onclick="window.editData('queue', '${q.plat}')" class="btn-gold btn-mini">EDIT</button>`;
+                    qList.appendChild(div);
+                });
+
+                // QR CODE DISPLAY
+                const activeCode = d.activeQrCode || 'OFF'; 
+                const displayEl = document.getElementById('activeQRDisplay');
+                const qrBox = document.getElementById('qrContainer');
+                const qrImg = document.getElementById('qrImg');
+                const qrText = document.getElementById('qrTextLabel');
+
+                if(activeCode === 'OFF') {
+                    displayEl.innerText = "MODE GPS (TANPA BARCODE)"; displayEl.style.color = "var(--green)"; qrBox.style.display = 'none';
+                } else {
+                    displayEl.innerText = "SECURE MODE: " + activeCode.replace("FC-CODE-", "KODE "); displayEl.style.color = "var(--purple)"; qrBox.style.display = 'flex';
+                    qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${activeCode}`; 
+                    qrText.innerText = activeCode.replace("FC-CODE-", "KODE ");
+                }
+            });
+
+            // LISTENER LOGS
+            unsubLog = onSnapshot(query(logRef, orderBy("timestamp", "desc"), limit(20)), (snap) => {
+                let h = ''; 
+                snap.forEach(d => { 
+                    const x = d.data(); 
+                    const time = x.timestamp ? x.timestamp.toDate().toLocaleTimeString() : '-'; 
+                    h += `<div class="log-line"><span style="color:#666">[${time}]</span> <b style="color:var(--primary)">${x.actor}</b>: ${x.action} - ${x.details}</div>`; 
+                });
+                document.getElementById('termLog').innerHTML = h;
             });
         }
 
-        function renderQueue(queue) {
-            const list = document.getElementById('queueList');
-            list.innerHTML = '';
-            if(queue.length === 0) list.innerHTML = '<div style="text-align:center; color:#555; padding:10px;">TIDAK ADA ANTRIAN</div>';
+        // === FITUR ASLI SUPERADMIN (ADAPTED TO 'db') ===
+        
+        // 1. ISI SLOT TANPA ANTRIAN
+        window.forcePushSlot = (index) => {
+            const p = prompt(`MASUKKAN PLAT NOMOR UNTUK SLOT ${index+1}:`); if(!p) return;
+            const n = prompt(`MASUKKAN NAMA PEMILIK ${p}:`); if(!n) return;
             
-            queue.forEach((q, idx) => {
-                const div = document.createElement('div');
-                div.style.cssText = "display:flex; justify-content:space-between; border-bottom:1px solid #333; padding:5px; align-items:center;";
-                div.innerHTML = `
-                    <div><b style="color:var(--primary)">${q.plat}</b> <span style="font-size:10px; color:#aaa;">(${q.userName})</span></div>
-                    <button onclick="window.removeQueue('${q.plat}')" style="background:#300; border:1px solid #f00; color:#f00; cursor:pointer;">X</button>
-                `;
-                list.appendChild(div);
-            });
+            const mainRef = doc(db, "antrian", "utama");
+            runTransaction(db, async(t) => {
+                const d = (await t.get(mainRef)).data();
+                // Init array if undefined
+                if(!d.chargingSlots) d.chargingSlots = Array(curBranchData.maxSlot).fill(null);
+                
+                if(d.chargingSlots[index]) return alert("Slot sudah terisi orang lain!");
+                
+                d.chargingSlots[index] = {
+                    plat: p.toUpperCase(),
+                    userName: n.toUpperCase(),
+                    role: "VIP_PUSH",
+                    startTime: Date.now(),
+                    qNo: "ADMIN",
+                    entryTime: Date.now()
+                };
+                t.update(mainRef, { chargingSlots: d.chargingSlots });
+            }).then(() => addLog("SUPER_ADMIN", "FORCE_FILL", `Forced ${p} into Slot ${index+1}`));
+        };
+
+        // 2. EDIT / KICK
+        window.editData = (type, id) => {
+            let oldP = "", oldN = "";
+            if(type === 'slot') { 
+                if(!cachedData.chargingSlots[id]) return alert("Slot Kosong"); 
+                oldP = cachedData.chargingSlots[id].plat; oldN = cachedData.chargingSlots[id].userName; 
+            } else { 
+                const q = cachedData.waitingQueue.find(x => x.plat === id); oldP = q.plat; oldN = q.userName; 
+            }
+            
+            // Opsi Kick/Hapus
+            if(confirm(`Klik OK untuk EDIT DATA.\nKlik CANCEL untuk MENGHAPUS/KICK ${oldP}.`)) {
+                // EDIT MODE
+                const newP = prompt("GANTI PLAT:", oldP); if(!newP) return;
+                const newN = prompt("GANTI NAMA:", oldN); if(!newN) return;
+                const mainRef = doc(db, "antrian", "utama");
+                
+                runTransaction(db, async(t) => {
+                    const d = (await t.get(mainRef)).data();
+                    if(type === 'slot') { d.chargingSlots[id].plat = newP.toUpperCase(); d.chargingSlots[id].userName = newN.toUpperCase(); } 
+                    else { const idx = d.waitingQueue.findIndex(x => x.plat === id); if(idx > -1) { d.waitingQueue[idx].plat = newP.toUpperCase(); d.waitingQueue[idx].userName = newN.toUpperCase(); } }
+                    t.update(mainRef, { chargingSlots: d.chargingSlots, waitingQueue: d.waitingQueue });
+                    addLog("SUPER_ADMIN", "EDIT_DATA", `${oldP} -> ${newP}`);
+                });
+            } else {
+                // DELETE MODE
+                if(!confirm(`YAKIN KICK/HAPUS ${oldP}?`)) return;
+                const mainRef = doc(db, "antrian", "utama");
+                runTransaction(db, async(t) => {
+                    const d = (await t.get(mainRef)).data();
+                    if(type === 'slot') d.chargingSlots[id] = null;
+                    else d.waitingQueue = d.waitingQueue.filter(x => x.plat !== id);
+                    t.update(mainRef, { chargingSlots: d.chargingSlots, waitingQueue: d.waitingQueue });
+                    addLog("SUPER_ADMIN", "KICK", `Kicked ${oldP}`);
+                });
+            }
+        };
+
+        // 3. SET JABATAN
+        window.setJabatan = () => {
+            const p = document.getElementById('rolePlat').value.toUpperCase(); 
+            let r = document.getElementById('roleSelect').value; 
+            if(!p) return alert("ISI KOLOM PLAT NOMOR DULU!"); 
+            if(r === "CUSTOM") {
+                const c = prompt("MASUKKAN NAMA JABATAN CUSTOM (BEBAS):");
+                if(!c || c.trim() === "") return alert("BATAL: Nama jabatan tidak boleh kosong!");
+                r = c.toUpperCase();
+            }
+            const cleanP = p.replace(/[^A-Z0-9]/g, '');
+            // Update Members Coll
+            setDoc(doc(db, "members", cleanP), { plat: p, role: r, verified: true }, {merge:true});
+            // Update Active Queue/Slots
+            const mainRef = doc(db, "antrian", "utama");
+            runTransaction(db, async(t) => {
+                const d = (await t.get(mainRef)).data(); let updated = false;
+                const newQ = (d.waitingQueue||[]).map(q => { if(q.plat.replace(/[^A-Z0-9]/g,'') === cleanP) { updated=true; return {...q, role: r}; } return q; });
+                const newS = (d.chargingSlots||[]).map(s => { if(s && s.plat.replace(/[^A-Z0-9]/g,'') === cleanP) { updated=true; return {...s, role: r}; } return s; });
+                if(updated) t.update(mainRef, { waitingQueue: newQ, chargingSlots: newS });
+            }).then(() => { alert(`BERHASIL! ${p} sekarang ${r}`); addLog("SUPER_ADMIN", "SET_ROLE", `Set ${p} as ${r}`); });
+        };
+
+        // 4. SECURITY QR
+        window.setActiveQR = (mode) => {
+            let newVal = "OFF"; let msg = "Matikan Barcode? Kembali ke Mode GPS?";
+            if(mode !== 'OFF') { newVal = "FC-CODE-" + mode; msg = "Aktifkan KODE " + mode + "?"; }
+            if(!confirm(msg)) return;
+            const mainRef = doc(db, "antrian", "utama");
+            setDoc(mainRef, { activeQrCode: newVal }, {merge: true}).then(() => { addLog("SUPER_ADMIN", "CHANGE_SECURITY", `Set Security to ${newVal}`); });
+        };
+
+        // 5. LOAD MEMBERS
+        window.loadMembers = async () => {
+            const area = document.getElementById('memberListArea'); area.style.display = 'block'; area.innerHTML = '<div style="padding:10px;">Loading...</div>';
+            try {
+                const q = query(collection(db, "members")); const querySnapshot = await getDocs(q);
+                let html = '<table style="width:100%; font-size:10px;"><tr><th>PLAT</th><th>JABATAN</th></tr>';
+                querySnapshot.forEach((doc) => {
+                    const d = doc.data();
+                    if (d.role) html += `<tr style="border-bottom:1px solid #222;"><td style="padding:5px;">${d.plat}</td><td style="padding:5px; color:var(--primary);">${d.role}</td></tr>`;
+                });
+                area.innerHTML = html + '</table>';
+            } catch (e) { alert("Error: " + e); }
+        };
+
+        // 6. BROADCAST & RESET
+        window.kirimBroadcast = async () => {
+            const msg = document.getElementById('broadcastInput').value;
+            if(!msg) return;
+            if(confirm("Kirim Broadcast: " + msg + "?")) {
+                const mainRef = doc(db, "antrian", "utama");
+                await updateDoc(mainRef, { broadcast: { msg: msg, time: Date.now() } });
+                addLog("SUPER_ADMIN", "BROADCAST", msg);
+                document.getElementById('broadcastInput').value = "";
+            }
+        };
+
+        window.resetDaily = () => { 
+            const mainRef = doc(db, "antrian", "utama");
+            runTransaction(db, async(t) => { t.update(mainRef, { waitingQueue: [], lastTicket: 0 }); addLog("SUPER_ADMIN", "RESET_DAILY", "Reset Queue"); }); 
+        };
+        
+        window.resetTotal = () => { 
+            const mainRef = doc(db, "antrian", "utama");
+            setDoc(mainRef, { chargingSlots: Array(curBranchData.maxSlot).fill(null), waitingQueue:[], lastTicket:0 }).then(() => addLog("SUPER_ADMIN", "RESET_TOTAL", "Wiped Everything")); 
+        };
+
+        function addLog(actor, act, det) { 
+            const logRef = collection(db, "activityLog");
+            addDoc(logRef, { action: act, details: det, actor: actor, timestamp: new Date() }); 
         }
 
-        // === 4. ACTIONS (GOD MODE) ===
-        window.kickUser = (index) => {
-            if(!confirm("Keluarkan user slot " + (index+1) + "?")) return;
-            const ref = doc(currentDb, "antrian", "utama");
-            runTransaction(currentDb, async(t) => {
-                const d = (await t.get(ref)).data();
-                d.chargingSlots[index] = null;
-                t.update(ref, { chargingSlots: d.chargingSlots });
-            }).then(() => logAct("KICK SLOT " + (index+1)));
-        };
-
-        window.forceFill = (index) => {
-            const p = prompt("Masukkan Plat:"); if(!p) return;
-            const n = prompt("Nama:");
-            const ref = doc(currentDb, "antrian", "utama");
-            runTransaction(currentDb, async(t) => {
-                const d = (await t.get(ref)).data();
-                if(d.chargingSlots[index]) return alert("Slot isi!");
-                d.chargingSlots[index] = { plat: p.toUpperCase(), userName: n || "ADMIN", startTime: Date.now(), role: "ADMIN_PUSH" };
-                t.update(ref, { chargingSlots: d.chargingSlots });
-            });
-        };
-
-        window.removeQueue = (plat) => {
-            const ref = doc(currentDb, "antrian", "utama");
-            runTransaction(currentDb, async(t) => {
-                const d = (await t.get(ref)).data();
-                const newQ = d.waitingQueue.filter(x => x.plat !== plat);
-                t.update(ref, { waitingQueue: newQ });
-            });
-        };
-
-        window.resetNumber = () => {
-            if(!confirm("Reset Nomor Antrian jadi 1? (User tetap ada)")) return;
-            const ref = doc(currentDb, "antrian", "utama");
-            updateDoc(ref, { lastTicket: 0 }).then(() => alert("Nomor Reset!"));
-        };
-
-        window.wipeData = () => {
-            if(!confirm("BAHAYA: HAPUS SEMUA USER DAN ANTRIAN?")) return;
-            const ref = doc(currentDb, "antrian", "utama");
-            const max = BRANCH_CONFIG[currentBranchId].maxSlot;
-            updateDoc(ref, { chargingSlots: Array(max).fill(null), waitingQueue: [], lastTicket: 0 }).then(() => alert("SYSTEM WIPED!"));
-        };
-
-        function logAct(act) {
-            const logRef = collection(currentDb, "activityLog");
-            addDoc(logRef, { actor: "SUPERADMIN", action: act, timestamp: new Date() });
-            document.getElementById('logArea').innerHTML = `<div>> ${act}</div>` + document.getElementById('logArea').innerHTML;
-        }
+        // Expose global for HTML handlers
+        window.loadBranch = loadBranch;
+        window.closeBranch = closeBranch;
+        window.editData = editData;
+        window.forcePushSlot = forcePushSlot;
+        window.setJabatan = setJabatan;
+        window.setActiveQR = setActiveQR;
+        window.loadMembers = loadMembers;
+        window.kirimBroadcast = kirimBroadcast;
+        window.resetDaily = resetDaily;
+        window.resetTotal = resetTotal;
 
     </script>
 </body>
