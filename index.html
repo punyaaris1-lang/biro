@@ -3,27 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SUPER ADMIN - CENTRAL OPS</title>
+    <title>CENTRAL COMMAND - MLU</title>
     <link href="https://fonts.googleapis.com/css2?family=Teko:wght@300;500;700&family=JetBrains+Mono:wght@400;700&family=Black+Ops+One&display=swap" rel="stylesheet">
     <style>
-        /* === STYLE ULTIMATE (ADAPTIVE THEME) === */
+        /* === STYLE BASE === */
         :root { 
             --bg: #050505; --panel: #111; --border: #333; 
-            --primary: #FFD700; /* INI AKAN BERUBAH SESUAI CABANG */
+            /* WARNA DINAMIS (AKAN BERUBAH LEWAT JS) */
+            --theme-color: #FFD700; 
+            
+            /* MAPPING KE NAMA VARIABEL LAMA BAPAK AGAR DESIGN TIDAK RUSAK */
+            --gold: var(--theme-color); 
+            
             --red: #FF003C; --blue: #00F0FF; --green: #00FF00; --purple: #9D00FF; --neon: #39FF14; --orange: #FFAA00;
             --term-bg: #000; --term-text: #0f0; 
         }
-        body { background: #0a0a0a; color: #fff; font-family: 'JetBrains Mono', monospace; padding: 10px; font-size: 11px; margin: 0; min-height: 100vh; display:flex; flex-direction:column; }
+        body { background: #0a0a0a; color: #fff; font-family: 'JetBrains Mono', monospace; padding: 10px; font-size: 11px; margin: 0; min-height: 100vh; display:flex; flex-direction: column; }
         
         /* UTILITAS */
         .hidden { display: none !important; }
-        .box { border: 1px solid #333; padding: 15px; margin-bottom: 15px; background: #000; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); border-left: 3px solid var(--primary); }
-        h3 { margin: 0 0 15px 0; color: var(--primary); border-bottom: 1px solid #333; padding-bottom: 5px; font-family: 'Teko', sans-serif; font-size: 20px; letter-spacing: 1px; }
         
-        /* TOMBOL ASLI */
+        /* STYLE ASLI DARI FILE SUPERADMIN.HTML BAPAK */
+        .box { border: 1px solid #333; padding: 15px; margin-bottom: 15px; background: #000; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        h3 { margin: 0 0 15px 0; color: var(--gold); border-bottom: 1px solid #333; padding-bottom: 5px; font-family: 'Teko', sans-serif; font-size: 20px; letter-spacing: 1px; }
         button { cursor: pointer; padding: 8px 12px; margin: 0; font-weight: bold; font-family: 'Teko'; font-size: 14px; letter-spacing: 0.5px; border-radius: 4px; transition: 0.2s; border: none; text-transform: uppercase; }
         button:hover { filter: brightness(1.2); transform: translateY(-1px); }
-        .btn-gold { background: linear-gradient(45deg, #b8860b, var(--primary)); color: #000; border: 1px solid var(--primary); }
+        
+        .btn-gold { background: linear-gradient(45deg, #b8860b, var(--gold)); color: #000; border: 1px solid var(--gold); }
         .btn-red { background: linear-gradient(45deg, #900, #d00); color: #fff; border: 1px solid #f00; }
         .btn-blue { background: linear-gradient(45deg, #005, #009); color: #fff; border: 1px solid #00f; }
         .btn-green { background: linear-gradient(45deg, #006400, #00FF00); color: #000; border: 1px solid #00FF00; }
@@ -31,20 +37,26 @@
         .btn-orange { background: linear-gradient(45deg, #FF8C00, #FFAA00); color: #000; border: 1px solid #FFAA00; }
         .btn-mini { padding: 4px 8px; font-size: 12px; margin: 2px; }
         
-        /* INPUTS */
         input, select { background: #1a1a1a; color: #fff; border: 1px solid #444; padding: 8px; border-radius: 4px; font-family: 'JetBrains Mono'; width: 100%; box-sizing: border-box; outline:none; }
-        input:focus { border-color: var(--primary); }
+        input:focus { border-color: var(--gold); }
 
-        /* GRID SLOTS */
-        .slot-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px; }
+        .slot-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
         .slot-item { border: 1px solid #333; padding: 10px; background: #050505; text-align: center; border-radius: 5px; min-height: 100px; display: flex; flex-direction: column; justify-content: space-between; }
         
-        /* LOGS */
-        .term-container { background: var(--term-bg); border: 1px solid #333; height: 150px; overflow-y: auto; padding: 10px; font-size: 10px; color: #ccc; border-radius: 5px; display: flex; flex-direction: column-reverse; }
+        .term-container { background: var(--term-bg); border: 1px solid #333; height: 200px; overflow-y: auto; padding: 10px; font-size: 10px; color: #ccc; border-radius: 5px; display: flex; flex-direction: column-reverse; }
         .log-line { margin-bottom: 4px; border-bottom: 1px solid #111; padding-bottom: 2px; }
 
-        /* === LOBBY SYSTEM STYLES === */
-        #lobbyScreen { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10; padding: 20px; }
+        /* QR BOX STYLE */
+        .qr-display-box { 
+            margin-top: 15px; background: #fff; padding: 15px; border-radius: 10px; 
+            display: none; flex-direction: column; align-items: center; 
+            box-shadow: 0 0 20px var(--gold);
+        }
+        .qr-display-box img { width: 180px; height: 180px; }
+        .qr-label { color: #000; font-family: 'Teko'; font-size: 24px; margin-top: 5px; text-transform: uppercase; font-weight: bold; }
+
+        /* === LOBBY SYSTEM STYLE === */
+        #lobbyScreen { position: fixed; inset: 0; background: #050505; z-index: 5000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
         .lobby-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 20px; width: 100%; max-width: 600px; }
         .branch-card { 
             background: #111; border: 1px solid #333; border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; transition: 0.3s;
@@ -52,23 +64,25 @@
         }
         .branch-card:hover { transform: scale(1.05); border-color: var(--c-color); box-shadow: 0 0 20px var(--c-glow); }
         .branch-logo { width: 80px; height: 80px; object-fit: contain; margin-bottom: 10px; filter: drop-shadow(0 0 10px rgba(0,0,0,0.5)); }
-        
-        /* HEADER PANEL */
-        .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid var(--primary); padding-bottom: 10px; }
-        .btn-back { background: #222; color: #aaa; border: 1px solid #444; }
 
-        /* QR DISPLAY */
-        .qr-display-box { 
-            margin-top: 15px; background: #fff; padding: 15px; border-radius: 10px; 
-            display: none; flex-direction: column; align-items: center; 
-            box-shadow: 0 0 20px var(--primary);
-        }
-        .qr-display-box img { width: 180px; height: 180px; }
+        /* LOGIN OVERLAY STYLE */
+        #loginOverlay { position: fixed; inset: 0; background: #000; z-index: 10000; display: flex; justify-content: center; align-items: center; flex-direction: column; }
+        .login-box { width: 300px; padding: 30px; border: 1px solid var(--gold); border-radius: 10px; background: #111; text-align: center; box-shadow: 0 0 30px rgba(255, 215, 0, 0.15); }
     </style>
 </head>
 <body>
 
-    <div id="lobbyScreen">
+    <div id="loginOverlay">
+        <div class="login-box">
+            <h2 style="font-family:'Teko'; color:var(--gold); margin-top:0; font-size:36px;">GOD MODE</h2>
+            <div style="margin-bottom:20px;">
+                <input type="password" id="loginPin" placeholder="PIN SUPER ADMIN" style="text-align:center; font-size:24px; letter-spacing:5px; border-color:var(--gold);">
+            </div>
+            <button onclick="attemptLogin()" class="btn-gold" style="width:100%; font-size:20px;">BUKA AKSES</button>
+        </div>
+    </div>
+
+    <div id="lobbyScreen" class="hidden">
         <h1 style="font-family:'Black Ops One'; font-size:32px; color:#fff; margin-bottom:10px;">CENTRAL COMMAND</h1>
         <div style="font-size:12px; color:#666; margin-bottom:30px; letter-spacing:3px;">SELECT AREA OF OPERATION</div>
 
@@ -86,7 +100,7 @@
                 <div style="font-family:'Black Ops One'; color:#E0FFFF; font-size:16px;">MARGONDA</div>
             </div>
             <div class="branch-card" onclick="loadBranch('RADAL')" style="--c-color:#CCFF00; --c-glow:rgba(204,255,0,0.4)">
-                <div style="width:80px; height:80px; display:flex; align-items:center; justify-content:center; font-size:40px;">📡</div>
+                <div style="width:80px; height:80px; display:flex; align-items:center; justify-content:center; font-size:40px; color:#CCFF00;">📡</div>
                 <div style="font-family:'Black Ops One'; color:#CCFF00; font-size:16px;">RADAL</div>
             </div>
         </div>
@@ -94,95 +108,112 @@
 
     <div id="controlPanel" class="hidden">
         
-        <div class="panel-header">
-            <div>
-                <span style="font-family:'Teko'; font-size:28px; color:var(--primary);" id="lblBranchTitle">SUPER ADMIN</span>
-                <span style="color:#fff; font-size:12px; margin-left:5px;">(GOD MODE)</span>
+        <div style="display:flex; justify-content:space-between; margin-bottom:15px; align-items:center;">
+            <div><span style="font-family:'Teko'; font-size:28px; color:var(--gold);"><span id="lblBranchTitle">SUPER ADMIN</span> <span style="color:#fff; font-size:12px;">(GOD MODE)</span></span></div>
+            <div style="display:flex; gap:5px;">
+                <button onclick="backToLobby()" class="btn-gray">⬅ LOBBY</button>
             </div>
-            <button onclick="closeBranch()" class="btn-back">⬅ KEMBALI KE LOBBY</button>
         </div>
 
         <div class="box">
-            <h3>1. LIVE EDIT & PAKSA SLOT (MASUK TANPA ANTRIAN)</h3>
-            <div id="slotGridArea" class="slot-grid">
+            <h3>1. LIVE EDIT (GANTI PLAT/NAMA) & PAKSA SLOT</h3>
+            <div class="slot-grid" id="slotGridArea">
                 </div>
             <div style="margin-top:15px; padding-top:10px; border-top:1px dashed #333;">
-                <div style="color:#888; margin-bottom:5px;">ANTRIAN WAITING LIST:</div>
-                <div id="queueList" style="max-height:150px; overflow-y:auto; border:1px solid #333; padding:5px; background:#050505;"></div>
+                <div style="color:#888; margin-bottom:5px;">ANTRIAN (Klik Edit untuk Ubah Typo):</div>
+                <div id="queueList" style="max-height:200px; overflow-y:auto; border:1px solid #333; padding:5px; background:#050505;"></div>
             </div>
         </div>
 
-        <div class="box" style="border-left-color: var(--blue);">
+        <div class="box" style="border-top: 3px solid var(--blue);">
             <h3 style="color:var(--blue);">2. SET JABATAN PENGURUS</h3>
+            <div style="font-size:10px; color:#aaa; margin-bottom:10px;">Pilih "INPUT MANUAL" jika jabatan tidak ada di list.</div>
             <div style="display:flex; gap:5px; margin-bottom:5px;">
-                <input id="rolePlat" placeholder="PLAT NOMOR (Cth: B 1234 MLU)" style="flex:2; text-transform:uppercase;">
+                <input id="rolePlat" placeholder="PLAT NOMOR (Cth: B 1 ILHAM)" style="flex:2; text-transform:uppercase;">
                 <select id="roleSelect" style="flex:2;">
-                    <option value="MEMBER">👤 MEMBER (DEFAULT)</option>
-                    <option value="CUSTOM">✍ INPUT MANUAL...</option>
-                    <optgroup label="--- BOARD ---">
+                    <option value="MEMBER">👤 KELUARGA MLU (DEFAULT)</option>
+                    <option value="CUSTOM">✍ INPUT MANUAL (CUSTOM)...</option>
+                    
+                    <optgroup label="--- BOARD OF DIRECTORS ---">
                         <option value="KETUM">👑 KETUA UMUM</option>
                         <option value="WAKETUM">⭐ WAKETUM</option>
                         <option value="PEMBINA">📜 PEMBINA</option>
                         <option value="SEKRETARIS">💻 SEKJEN</option>
                     </optgroup>
-                    <optgroup label="--- OPS ---">
+    
+                    <optgroup label="--- OPERASIONAL ---">
                         <option value="KORLAP">🔴 KORLAP</option>
                         <option value="SATGAS">⚡ SATGAS</option>
+                        <option value="KACAB">📍 KACAB</option>
                         <option value="HUMAS">📢 HUMAS</option>
+                    </optgroup>
+    
+                    <optgroup label="--- LAINNYA ---">
+                        <option value="PEA">🟣 KOKOH PEA</option>
+                        <option value="PELAN">🐢 SPECIAL TURTLE (SALTO)</option>
+                        <option value="OFFICE">🏢 OFFICE MAKA</option>
                     </optgroup>
                 </select>
             </div>
             <button onclick="setJabatan()" class="btn-blue" style="width:100%;">SIMPAN & UPDATE BADGE</button>
         </div>
 
-        <div class="box" style="border-left-color: var(--purple);">
-            <h3 style="color:var(--purple);">3. SAKLAR KEAMANAN (QR)</h3>
+        <div class="box" style="border-top: 3px solid var(--purple);">
+            <h3 style="color:var(--purple);">3. SAKLAR KEAMANAN (HYBRID)</h3>
             
-            <div style="text-align:center; margin-bottom:10px;">
-                <div style="color:#aaa; font-size:10px;">STATUS SAAT INI</div>
-                <div id="activeQRDisplay" style="font-family:'Teko'; font-size:24px; color:#fff; font-weight:bold;">LOADING...</div>
+            <div style="background:#111; padding:15px; border-radius:8px; text-align:center; margin-bottom:15px; border:1px solid #333;">
+                <div style="color:#aaa; font-size:10px; letter-spacing:2px; margin-bottom:5px;">STATUS SAAT INI</div>
+                <div id="activeQRDisplay" style="font-family:'Teko'; font-size:32px; color:#fff; font-weight:bold; text-shadow:0 0 10px rgba(255,255,255,0.3);">LOADING...</div>
                 
                 <div id="qrContainer" class="qr-display-box">
+                    <div style="color:#666; font-size:9px; margin-bottom:5px;">TAMPILKAN QR INI KE USER UNTUK SCAN</div>
                     <img id="qrImg" src="" alt="QR CODE">
-                    <div id="qrTextLabel" style="font-family:'Teko'; font-size:24px; color:#000; font-weight:bold;"></div>
+                    <div id="qrTextLabel" class="qr-label"></div>
                 </div>
             </div>
-
-            <div style="display:grid; grid-template-columns: 1fr 2fr; gap:10px;">
-                <button onclick="setActiveQR('OFF')" class="btn-green">🌍 MODE GPS (OFF)</button>
-                <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:2px;">
-                    <button onclick="setActiveQR('A')" class="btn-purple">KD-A</button>
-                    <button onclick="setActiveQR('B')" class="btn-purple">KD-B</button>
-                    <button onclick="setActiveQR('C')" class="btn-purple">KD-C</button>
+    
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                <button onclick="setActiveQR('OFF')" class="btn-green" style="height:50px; font-size:16px;">
+                    🌍 MODE GPS (OFF)
+                </button>
+                
+                <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:5px;">
+                    <button onclick="setActiveQR('A')" class="btn-purple">KODE A</button>
+                    <button onclick="setActiveQR('B')" class="btn-purple">KODE B</button>
+                    <button onclick="setActiveQR('C')" class="btn-purple">KODE C</button>
+                    <button onclick="setActiveQR('D')" class="btn-purple">KODE D</button>
+                    <button onclick="setActiveQR('E')" class="btn-purple">KODE E</button>
+                    <div style="display:flex; align-items:center; justify-content:center; font-size:9px; color:#666; text-align:center;">WAJIB SCAN</div>
                 </div>
             </div>
         </div>
 
-        <div class="box" style="border-left-color: var(--green);">
-            <h3 style="color:var(--green);">4. DATA MEMBER</h3>
+        <div class="box" style="border-top: 3px solid var(--green);">
+            <h3 style="color:var(--green);">4. INFO MEMBER VIP (BADGE)</h3>
             <button onclick="loadMembers()" class="btn-green" style="width:100%; margin-bottom:10px;">👥 LIHAT DATA MEMBER</button>
             <div id="memberListArea" style="max-height:200px; overflow-y:auto; border:1px solid #333; display:none;"></div>
         </div>
 
-        <div class="box" style="border-left-color: var(--orange);">
-            <h3 style="color:var(--orange);">5. LIVE BROADCAST</h3>
+        <div class="box" style="border-top: 3px solid var(--orange);">
+            <h3 style="color:var(--orange);">5. LIVE BROADCAST (PENGUMUMAN)</h3>
+            <div style="font-size:10px; color:#aaa; margin-bottom:10px;">Pesan akan muncul sebagai POP-UP MERAH di semua layar.</div>
             <div style="display:flex; gap:5px;">
-                <input id="broadcastInput" placeholder="Ketik pesan..." style="flex:3;">
+                <input id="broadcastInput" placeholder="Ketik pesan darurat disini..." style="flex:3;">
                 <button onclick="kirimBroadcast()" class="btn-orange" style="flex:1;">📢 KIRIM</button>
             </div>
         </div>
 
-        <div class="box" style="border-left-color: var(--red);">
-            <h3 style="color:var(--red);">6. DANGER ZONE</h3>
+        <div class="box" style="border-top: 3px solid var(--red);">
+            <h3 style="color:var(--red);">6. DANGER ZONE (RESET)</h3>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-                <button onclick="resetDaily()" class="btn-gold">🔄 RESET NOMOR HARIAN</button>
-                <button onclick="resetTotal()" class="btn-red">☣ WIPE TOTAL (0)</button>
+                <button onclick="if(confirm('Reset Nomor Antrian jadi 1? Slot charging tetap aman.')) resetDaily()" class="btn-gold">🔄 RESET NOMOR HARIAN</button>
+                <button onclick="if(confirm('BAHAYA: Hapus SEMUA data antrian & slot?')) resetTotal()" class="btn-red">☣ WIPE TOTAL (0)</button>
             </div>
         </div>
 
         <div class="box">
             <h3>SYSTEM LOGS</h3>
-            <div class="term-container" id="termLog"><div class="log-line">Waiting for connection...</div></div>
+            <div class="term-container" id="termLog"><div class="log-line">Waiting connection...</div></div>
         </div>
 
     </div>
@@ -194,7 +225,7 @@
         // === CONFIG CABANG ===
         const BRANCHES = {
             "GADING": { 
-                name: "FC GADING", color: "#00F0FF", maxSlot: 3,
+                name: "FC KELAPA GADING", color: "#00F0FF", maxSlot: 3,
                 cfg: { apiKey: "AIzaSyB666i9lYWIpxOdkwpoX9EvFvHLmHczeq8", authDomain: "fcgadingnew22.firebaseapp.com", projectId: "fcgadingnew22", appId: "1:537736846678:web:53788d71a196423ac08af7" }
             },
             "KC": { 
@@ -211,109 +242,106 @@
             }
         };
 
-        // VARIABLES
         let curApp = null;
-        let db = null; // Ini akan berubah sesuai cabang
+        let db = null;
         let unsub = null;
         let unsubLog = null;
         let curBranchData = null;
         let cachedData = null;
 
-        // AUTH SIMPLE
-        const savedPin = localStorage.getItem('god_sess');
-        if(!savedPin) {
-            const p = prompt("ENTER GOD MODE PIN:");
-            if(p !== "090815") { alert("WRONG PIN"); document.body.innerHTML = "ACCESS DENIED"; throw "Stop"; }
-            localStorage.setItem('god_sess', '1');
-        }
+        // AUTH & LOGIN LOGIC
+        window.attemptLogin = () => {
+            const p = document.getElementById('loginPin').value;
+            if(p === "090815") {
+                document.getElementById('loginOverlay').style.display = 'none';
+                document.getElementById('lobbyScreen').classList.remove('hidden');
+            } else {
+                alert("PIN SALAH!");
+            }
+        };
 
-        // === SYSTEM SWITCHER ===
+        // LOAD CABANG
         window.loadBranch = (code) => {
             const b = BRANCHES[code];
             curBranchData = b;
 
-            // 1. Set Tema
-            document.documentElement.style.setProperty('--primary', b.color);
+            // UBAH TEMA WARNA DINAMIS
+            document.documentElement.style.setProperty('--theme-color', b.color);
             document.getElementById('lblBranchTitle').innerText = b.name;
 
-            // 2. Init Firebase Dynamic
-            if(curApp) curApp = null; // Soft reset logic
+            // RESET FIREBASE CONNECTION
+            if(curApp) curApp = null;
             try {
                 curApp = initializeApp(b.cfg, code + "_" + Date.now());
                 db = getFirestore(curApp);
                 
-                // 3. UI Switch
+                // UI SWITCH
                 document.getElementById('lobbyScreen').classList.add('hidden');
                 document.getElementById('controlPanel').classList.remove('hidden');
-
-                // 4. Start Listening
-                startSystem();
-
+                
+                startListening();
             } catch(e) { alert("Error Init: " + e.message); }
         };
 
-        window.closeBranch = () => {
+        window.backToLobby = () => {
             if(unsub) unsub();
             if(unsubLog) unsubLog();
             document.getElementById('controlPanel').classList.add('hidden');
             document.getElementById('lobbyScreen').classList.remove('hidden');
-            document.getElementById('termLog').innerHTML = '<div class="log-line">Disconnected...</div>';
+            document.getElementById('termLog').innerHTML = '<div class="log-line">Waiting connection...</div>';
             document.getElementById('slotGridArea').innerHTML = '';
         };
 
-        // === LOGIC UTAMA (COPY DARI SUPERADMIN ASLI TAPI ADAPTIF) ===
-        function startSystem() {
+        // === LOGIC UTAMA (COPY-PASTE DARI SUPERADMIN.HTML BAPAK) ===
+        function startListening() {
             const mainRef = doc(db, "antrian", "utama");
             const logRef = collection(db, "activityLog");
 
-            // LISTENER UTAMA
             unsub = onSnapshot(mainRef, (snap) => {
-                if(!snap.exists()) return; // Handle DB kosong
-                const d = snap.data();
-                cachedData = d;
+                if(!snap.exists()) return;
+                const d = snap.data(); cachedData = d;
                 
-                // RENDER SLOT (DINAMIS SESUAI MAX SLOT)
                 const container = document.getElementById('slotGridArea');
                 container.innerHTML = '';
-                const slots = d.chargingSlots || [];
                 
-                // Loop sampai maxSlot cabang tersebut
+                // RENDER SLOT (PASTIKAN TOMBOL ISI SLOT ADA)
+                // Menggunakan maxSlot dari config
+                const slots = d.chargingSlots || [];
                 for(let i=0; i<curBranchData.maxSlot; i++) {
                     const s = slots[i];
                     const div = document.createElement('div');
                     div.className = 'slot-item';
-                    
+
                     if(s) {
-                        div.style.border = "1px solid var(--primary)";
+                        div.style.border = "1px solid var(--blue)";
                         div.innerHTML = `
-                            <div style="color:var(--primary); font-size:16px; font-weight:bold;">${s.plat}</div>
+                            <div style="color:var(--blue); font-size:16px; font-weight:bold;">${s.plat}</div>
                             <div style="font-size:12px;">${s.userName}</div>
                             <div style="margin-top:auto; width:100%;">
-                                <button onclick="window.editData('slot', ${i})" class="btn-gold btn-mini" style="width:100%;">EDIT / KICK</button>
+                                <button onclick="window.editData('slot', ${i})" class="btn-gold btn-mini" style="width:100%;">EDIT DATA</button>
                             </div>`;
                     } else {
-                        // FITUR MASUK TANPA ANTRIAN (FORCE PUSH)
+                        // INI FITUR YANG BAPAK MINTA: + ISI SLOT
                         div.style.border = "1px solid #333";
                         div.innerHTML = `
                             <div style="color:#555; margin:auto; font-size:10px;">KOSONG</div>
                             <div style="width:100%;">
-                                <button onclick="window.forcePushSlot(${i})" class="btn-green btn-mini" style="width:100%;">+ ISI PAKSA</button>
+                                <button onclick="window.forcePushSlot(${i})" class="btn-green btn-mini" style="width:100%;">+ ISI SLOT</button>
                             </div>`;
                     }
                     container.appendChild(div);
                 }
 
-                // RENDER QUEUE
-                const qList = document.getElementById('queueList'); 
-                qList.innerHTML = '';
+                // RENDER ANTRIAN
+                const qList = document.getElementById('queueList'); qList.innerHTML = '';
                 (d.waitingQueue || []).forEach((q, i) => {
                     const div = document.createElement('div');
                     div.style.cssText = "display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #222; padding:5px;";
-                    div.innerHTML = `<span><span style="color:var(--primary)">#${q.qNo}</span> <b>${q.plat}</b> <span style="font-size:10px; color:#888;">${q.userName}</span></span><button onclick="window.editData('queue', '${q.plat}')" class="btn-gold btn-mini">EDIT</button>`;
+                    div.innerHTML = `<span><span style="color:var(--gold)">#${q.qNo}</span> <b>${q.plat}</b> <span style="font-size:10px; color:#888;">${q.userName}</span></span><button onclick="window.editData('queue', '${q.plat}')" class="btn-gold btn-mini">EDIT</button>`;
                     qList.appendChild(div);
                 });
 
-                // QR CODE DISPLAY
+                // RENDER SECURITY / QR
                 const activeCode = d.activeQrCode || 'OFF'; 
                 const displayEl = document.getElementById('activeQRDisplay');
                 const qrBox = document.getElementById('qrContainer');
@@ -324,34 +352,38 @@
                     displayEl.innerText = "MODE GPS (TANPA BARCODE)"; displayEl.style.color = "var(--green)"; qrBox.style.display = 'none';
                 } else {
                     displayEl.innerText = "SECURE MODE: " + activeCode.replace("FC-CODE-", "KODE "); displayEl.style.color = "var(--purple)"; qrBox.style.display = 'flex';
-                    qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${activeCode}`; 
-                    qrText.innerText = activeCode.replace("FC-CODE-", "KODE ");
+                    qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${activeCode}`; qrText.innerText = activeCode.replace("FC-CODE-", "KODE ");
                 }
             });
 
-            // LISTENER LOGS
+            // LOGS
             unsubLog = onSnapshot(query(logRef, orderBy("timestamp", "desc"), limit(20)), (snap) => {
-                let h = ''; 
-                snap.forEach(d => { 
-                    const x = d.data(); 
-                    const time = x.timestamp ? x.timestamp.toDate().toLocaleTimeString() : '-'; 
-                    h += `<div class="log-line"><span style="color:#666">[${time}]</span> <b style="color:var(--primary)">${x.actor}</b>: ${x.action} - ${x.details}</div>`; 
-                });
+                let h = ''; snap.forEach(d => { const x = d.data(); const time = x.timestamp ? x.timestamp.toDate().toLocaleTimeString() : '-'; h += `<div class="log-line"><span style="color:#666">[${time}]</span> <b style="color:var(--gold)">${x.actor}</b>: ${x.action} - ${x.details}</div>`; });
                 document.getElementById('termLog').innerHTML = h;
             });
         }
 
-        // === FITUR ASLI SUPERADMIN (ADAPTED TO 'db') ===
-        
-        // 1. ISI SLOT TANPA ANTRIAN
+        // === FUNGSI-FUNGSI AKSI (SAMA PERSIS) ===
+
+        window.setActiveQR = (mode) => {
+            let newVal = "OFF"; let msg = "Matikan Barcode? Kembali ke Mode GPS?";
+            if(mode !== 'OFF') { newVal = "FC-CODE-" + mode; msg = "Aktifkan KODE " + mode + "?\nUser WAJIB scan kertas Kode " + mode + " untuk masuk."; }
+            if(!confirm(msg)) return;
+            const mainRef = doc(db, "antrian", "utama");
+            setDoc(mainRef, { activeQrCode: newVal }, {merge: true}).then(() => { addLog("SUPER_ADMIN", "CHANGE_SECURITY", `Set Security to ${newVal}`); });
+        };
+
+        // FITUR ISI SLOT TANPA ANTRIAN (FORCE PUSH)
         window.forcePushSlot = (index) => {
-            const p = prompt(`MASUKKAN PLAT NOMOR UNTUK SLOT ${index+1}:`); if(!p) return;
-            const n = prompt(`MASUKKAN NAMA PEMILIK ${p}:`); if(!n) return;
+            const p = prompt(`MASUKKAN PLAT NOMOR UNTUK SLOT ${index+1}:`);
+            if(!p) return;
+            const n = prompt(`MASUKKAN NAMA PEMILIK ${p}:`);
+            if(!n) return;
             
             const mainRef = doc(db, "antrian", "utama");
             runTransaction(db, async(t) => {
                 const d = (await t.get(mainRef)).data();
-                // Init array if undefined
+                // Safety array init
                 if(!d.chargingSlots) d.chargingSlots = Array(curBranchData.maxSlot).fill(null);
                 
                 if(d.chargingSlots[index]) return alert("Slot sudah terisi orang lain!");
@@ -359,7 +391,7 @@
                 d.chargingSlots[index] = {
                     plat: p.toUpperCase(),
                     userName: n.toUpperCase(),
-                    role: "VIP_PUSH",
+                    role: "MEMBER",
                     startTime: Date.now(),
                     qNo: "ADMIN",
                     entryTime: Date.now()
@@ -368,7 +400,6 @@
             }).then(() => addLog("SUPER_ADMIN", "FORCE_FILL", `Forced ${p} into Slot ${index+1}`));
         };
 
-        // 2. EDIT / KICK
         window.editData = (type, id) => {
             let oldP = "", oldN = "";
             if(type === 'slot') { 
@@ -377,116 +408,95 @@
             } else { 
                 const q = cachedData.waitingQueue.find(x => x.plat === id); oldP = q.plat; oldN = q.userName; 
             }
+            const newP = prompt("GANTI PLAT:", oldP); if(!newP) return;
+            const newN = prompt("GANTI NAMA:", oldN); if(!newN) return;
             
-            // Opsi Kick/Hapus
-            if(confirm(`Klik OK untuk EDIT DATA.\nKlik CANCEL untuk MENGHAPUS/KICK ${oldP}.`)) {
-                // EDIT MODE
-                const newP = prompt("GANTI PLAT:", oldP); if(!newP) return;
-                const newN = prompt("GANTI NAMA:", oldN); if(!newN) return;
-                const mainRef = doc(db, "antrian", "utama");
-                
-                runTransaction(db, async(t) => {
-                    const d = (await t.get(mainRef)).data();
-                    if(type === 'slot') { d.chargingSlots[id].plat = newP.toUpperCase(); d.chargingSlots[id].userName = newN.toUpperCase(); } 
-                    else { const idx = d.waitingQueue.findIndex(x => x.plat === id); if(idx > -1) { d.waitingQueue[idx].plat = newP.toUpperCase(); d.waitingQueue[idx].userName = newN.toUpperCase(); } }
-                    t.update(mainRef, { chargingSlots: d.chargingSlots, waitingQueue: d.waitingQueue });
-                    addLog("SUPER_ADMIN", "EDIT_DATA", `${oldP} -> ${newP}`);
-                });
-            } else {
-                // DELETE MODE
-                if(!confirm(`YAKIN KICK/HAPUS ${oldP}?`)) return;
-                const mainRef = doc(db, "antrian", "utama");
-                runTransaction(db, async(t) => {
-                    const d = (await t.get(mainRef)).data();
-                    if(type === 'slot') d.chargingSlots[id] = null;
-                    else d.waitingQueue = d.waitingQueue.filter(x => x.plat !== id);
-                    t.update(mainRef, { chargingSlots: d.chargingSlots, waitingQueue: d.waitingQueue });
-                    addLog("SUPER_ADMIN", "KICK", `Kicked ${oldP}`);
-                });
-            }
+            const mainRef = doc(db, "antrian", "utama");
+            runTransaction(db, async(t) => {
+                const d = (await t.get(mainRef)).data();
+                if(type === 'slot') { d.chargingSlots[id].plat = newP.toUpperCase(); d.chargingSlots[id].userName = newN.toUpperCase(); } 
+                else { const idx = d.waitingQueue.findIndex(x => x.plat === id); if(idx > -1) { d.waitingQueue[idx].plat = newP.toUpperCase(); d.waitingQueue[idx].userName = newN.toUpperCase(); } }
+                t.update(mainRef, { chargingSlots: d.chargingSlots, waitingQueue: d.waitingQueue });
+                addLog("SUPER_ADMIN", "EDIT_DATA", `${oldP} -> ${newP}`);
+            });
         };
 
-        // 3. SET JABATAN
         window.setJabatan = () => {
             const p = document.getElementById('rolePlat').value.toUpperCase(); 
             let r = document.getElementById('roleSelect').value; 
+            
             if(!p) return alert("ISI KOLOM PLAT NOMOR DULU!"); 
             if(r === "CUSTOM") {
                 const c = prompt("MASUKKAN NAMA JABATAN CUSTOM (BEBAS):");
                 if(!c || c.trim() === "") return alert("BATAL: Nama jabatan tidak boleh kosong!");
                 r = c.toUpperCase();
             }
+
             const cleanP = p.replace(/[^A-Z0-9]/g, '');
-            // Update Members Coll
             setDoc(doc(db, "members", cleanP), { plat: p, role: r, verified: true }, {merge:true});
-            // Update Active Queue/Slots
             const mainRef = doc(db, "antrian", "utama");
             runTransaction(db, async(t) => {
                 const d = (await t.get(mainRef)).data(); let updated = false;
-                const newQ = (d.waitingQueue||[]).map(q => { if(q.plat.replace(/[^A-Z0-9]/g,'') === cleanP) { updated=true; return {...q, role: r}; } return q; });
-                const newS = (d.chargingSlots||[]).map(s => { if(s && s.plat.replace(/[^A-Z0-9]/g,'') === cleanP) { updated=true; return {...s, role: r}; } return s; });
+                const newQ = (d.waitingQueue||[]).map(q => { if(q.plat.replace(/[^A-Z0-9]/g,'') === cleanP) { updated=true; return {...q, role: r, isMember: true}; } return q; });
+                const newS = (d.chargingSlots||[]).map(s => { if(s && s.plat.replace(/[^A-Z0-9]/g,'') === cleanP) { updated=true; return {...s, role: r, isMember: true}; } return s; });
                 if(updated) t.update(mainRef, { waitingQueue: newQ, chargingSlots: newS });
-            }).then(() => { alert(`BERHASIL! ${p} sekarang ${r}`); addLog("SUPER_ADMIN", "SET_ROLE", `Set ${p} as ${r}`); });
+            }).then(() => { alert(`BERHASIL! ${p} sekarang ${r}`); addLog("SUPER_ADMIN", "SET_ROLE", `Set ${p} as ${r}`); document.getElementById('rolePlat').value = ''; if(document.getElementById('memberListArea').style.display === 'block') loadMembers(); });
         };
 
-        // 4. SECURITY QR
-        window.setActiveQR = (mode) => {
-            let newVal = "OFF"; let msg = "Matikan Barcode? Kembali ke Mode GPS?";
-            if(mode !== 'OFF') { newVal = "FC-CODE-" + mode; msg = "Aktifkan KODE " + mode + "?"; }
-            if(!confirm(msg)) return;
-            const mainRef = doc(db, "antrian", "utama");
-            setDoc(mainRef, { activeQrCode: newVal }, {merge: true}).then(() => { addLog("SUPER_ADMIN", "CHANGE_SECURITY", `Set Security to ${newVal}`); });
-        };
-
-        // 5. LOAD MEMBERS
         window.loadMembers = async () => {
-            const area = document.getElementById('memberListArea'); area.style.display = 'block'; area.innerHTML = '<div style="padding:10px;">Loading...</div>';
+            const area = document.getElementById('memberListArea'); area.style.display = 'block'; area.innerHTML = '<div style="padding:10px;">Loading Data...</div>';
             try {
                 const q = query(collection(db, "members")); const querySnapshot = await getDocs(q);
-                let html = '<table style="width:100%; font-size:10px;"><tr><th>PLAT</th><th>JABATAN</th></tr>';
+                let html = '<table style="width:100%; font-size:10px;"><tr><th style="text-align:left;">PLAT</th><th style="text-align:left;">JABATAN</th><th>AKSI</th></tr>';
+                let count = 0;
                 querySnapshot.forEach((doc) => {
                     const d = doc.data();
-                    if (d.role) html += `<tr style="border-bottom:1px solid #222;"><td style="padding:5px;">${d.plat}</td><td style="padding:5px; color:var(--primary);">${d.role}</td></tr>`;
+                    if (d.role) {
+                        count++; let color = '#fff'; let label = d.role;
+                        html += `<tr style="border-bottom:1px solid #222;"><td style="padding:5px;">${d.plat}</td><td style="padding:5px; color:var(--theme-color); font-weight:bold;">${label}</td><td style="padding:5px; text-align:center;"><button onclick="hapusBadge('${d.plat}')" class="btn-red btn-mini">X</button></td></tr>`;
+                    }
                 });
-                area.innerHTML = html + '</table>';
-            } catch (e) { alert("Error: " + e); }
+                area.innerHTML = (count === 0) ? '<div style="padding:10px;">KOSONG</div>' : html + '</table>';
+            } catch (e) { alert("Gagal: " + e); }
         };
 
-        // 6. BROADCAST & RESET
+        window.hapusBadge = async (plat) => {
+            if(!confirm("Copot jabatan " + plat + "?")) return; const cleanP = plat.replace(/[^A-Z0-9]/g, '');
+            await setDoc(doc(db, "members", cleanP), { plat: plat, role: null, verified: true }, {merge:true});
+            const mainRef = doc(db, "antrian", "utama");
+            runTransaction(db, async(t) => {
+                const d = (await t.get(mainRef)).data(); let updated = false;
+                const newQ = (d.waitingQueue||[]).map(q => { if(q.plat.replace(/[^A-Z0-9]/g,'') === cleanP) { updated=true; return {...q, role: null}; } return q; });
+                const newS = (d.chargingSlots||[]).map(s => { if(s && s.plat.replace(/[^A-Z0-9]/g,'') === cleanP) { updated=true; return {...s, role: null}; } return s; });
+                if(updated) t.update(mainRef, { waitingQueue: newQ, chargingSlots: newS });
+            }).then(() => { addLog("SUPER_ADMIN", "REMOVE_ROLE", `Removed Role from ${plat}`); loadMembers(); });
+        };
+
         window.kirimBroadcast = async () => {
             const msg = document.getElementById('broadcastInput').value;
-            if(!msg) return;
+            if(!msg) return alert("Ketik pesan dulu!");
             if(confirm("Kirim Broadcast: " + msg + "?")) {
                 const mainRef = doc(db, "antrian", "utama");
                 await updateDoc(mainRef, { broadcast: { msg: msg, time: Date.now() } });
-                addLog("SUPER_ADMIN", "BROADCAST", msg);
+                alert("PESAN TERKIRIM!"); addLog("SUPER_ADMIN", "BROADCAST", msg);
                 document.getElementById('broadcastInput').value = "";
             }
         };
 
-        window.resetDaily = () => { 
-            const mainRef = doc(db, "antrian", "utama");
-            runTransaction(db, async(t) => { t.update(mainRef, { waitingQueue: [], lastTicket: 0 }); addLog("SUPER_ADMIN", "RESET_DAILY", "Reset Queue"); }); 
-        };
+        window.resetDaily = () => { const mainRef = doc(db, "antrian", "utama"); runTransaction(db, async(t) => { t.update(mainRef, { waitingQueue: [], recycledNumbers: [], lastTicket: 0 }); addLog("SUPER_ADMIN", "RESET_DAILY", "Reset Queue Numbers"); }); };
+        window.resetTotal = () => { const mainRef = doc(db, "antrian", "utama"); setDoc(mainRef, { chargingSlots:Array(curBranchData.maxSlot).fill(null), waitingQueue:[], recycledNumbers:[], lastTicket:0 }).then(() => addLog("SUPER_ADMIN", "RESET_TOTAL", "Wiped Everything")); };
         
-        window.resetTotal = () => { 
-            const mainRef = doc(db, "antrian", "utama");
-            setDoc(mainRef, { chargingSlots: Array(curBranchData.maxSlot).fill(null), waitingQueue:[], lastTicket:0 }).then(() => addLog("SUPER_ADMIN", "RESET_TOTAL", "Wiped Everything")); 
-        };
+        function addLog(actor, act, det) { const logRef = collection(db, "activityLog"); addDoc(logRef, { action: act, details: det, actor: actor, timestamp: new Date() }); }
 
-        function addLog(actor, act, det) { 
-            const logRef = collection(db, "activityLog");
-            addDoc(logRef, { action: act, details: det, actor: actor, timestamp: new Date() }); 
-        }
-
-        // Expose global for HTML handlers
+        // EXPOSE KE WINDOW AGAR TOMBOL HTML BISA BACA
         window.loadBranch = loadBranch;
-        window.closeBranch = closeBranch;
-        window.editData = editData;
-        window.forcePushSlot = forcePushSlot;
-        window.setJabatan = setJabatan;
+        window.backToLobby = backToLobby;
         window.setActiveQR = setActiveQR;
+        window.forcePushSlot = forcePushSlot;
+        window.editData = editData;
+        window.setJabatan = setJabatan;
         window.loadMembers = loadMembers;
+        window.hapusBadge = hapusBadge;
         window.kirimBroadcast = kirimBroadcast;
         window.resetDaily = resetDaily;
         window.resetTotal = resetTotal;
