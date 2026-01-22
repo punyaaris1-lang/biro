@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SUPERADMIN - GOD MODE V2</title>
+    <link href="https://fonts.googleapis.com/css2?family=Teko:wght@300;500;700&family=JetBrains+Mono:wght@400;700&family=Black+Ops+One&display=swap" rel="stylesheet">
+    <style>
+        /* === CORE THEME VARIABLES (DINAMIS) === */
+        :root {
+            --bg: #050505; 
+            --panel: #111; 
+            --primary: #FFD700; /* Warna Utama (Berubah per cabang) */
+            --glow: rgba(255, 215, 0, 0.3); /* Glow Utama */
+            --text-main: #fff;
+        }
+
+        body { background: var(--bg); color: var(--text-main); font-family: 'JetBrains Mono', monospace; padding: 0; margin: 0; min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; transition: background 0.5s; }
+        
+        /* UTILS */
+        .hidden { display: none !important; }
+        .btn-action { cursor: pointer; border: 1px solid var(--primary); background: rgba(0,0,0,0.3); color: var(--primary); font-family: 'Teko'; font-size: 16px; padding: 5px 10px; text-transform: uppercase; transition: 0.3s; }
+        .btn-action:hover { background: var(--primary); color: #000; box-shadow: 0 0 15px var(--glow); }
+        .box { border: 1px solid #333; padding: 15px; margin-bottom: 15px; background: rgba(0,0,0,0.5); border-radius: 8px; border-left: 3px solid var(--primary); }
+        h3 { margin: 0 0 15px 0; color: var(--primary); border-bottom: 1px solid #333; padding-bottom: 5px; font-family: 'Teko', sans-serif; font-size: 22px; letter-spacing: 1px; text-shadow: 0 0 10px var(--glow); }
+
+        /* === LOBBY SCREEN === */
+        #lobbyScreen { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; z-index: 10; }
+        .lobby-title { font-family: 'Black Ops One'; font-size: 40px; color: #fff; margin-bottom: 30px; text-shadow: 0 0 20px rgba(255,255,255,0.2); text-align: center; }
+        
+        .grid-branches { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; width: 100%; max-width: 800px; }
+        .branch-card { 
+            background: #111; border: 1px solid #333; border-radius: 10px; padding: 20px; 
+            text-align: center; cursor: pointer; transition: all 0.3s; position: relative; overflow: hidden;
+            display: flex; flex-direction: column; align-items: center;
+        }
+        .branch-card:hover { transform: translateY(-5px); border-color: var(--card-color); box-shadow: 0 0 30px var(--card-glow); }
+        .branch-logo { width: 80px; height: 80px; object-fit: contain; margin-bottom: 15px; filter: drop-shadow(0 0 5px rgba(255,255,255,0.2)); }
+        .branch-name { font-family: 'Black Ops One'; font-size: 18px; color: #fff; text-transform: uppercase; }
+        .branch-loc { font-size: 10px; color: #888; font-family: 'Teko'; letter-spacing: 2px; }
+
+        /* === CONTROL PANEL === */
+        #controlPanel { padding: 15px; display: none; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid var(--primary); }
+        .active-branch-title { font-family: 'Black Ops One'; font-size: 28px; color: var(--primary); text-transform: uppercase; }
+        .btn-back { background: #333; color: #fff; border: none; padding: 8px 20px; font-family: 'Teko'; font-size: 18px; cursor: pointer; clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px); }
+        .btn-back:hover { background: #555; }
+
+        /* SLOT GRID DINAMIS */
+        .slot-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px; }
+        .slot-item { border: 1px solid #333; padding: 10px; background: #000; text-align: center; border-radius: 5px; min-height: 120px; display: flex; flex-direction: column; justify-content: space-between; }
+        .slot-active { border-color: var(--primary); box-shadow: inset 0 0 20px rgba(0,0,0,0.8); background: linear-gradient(180deg, rgba(0,0,0,0), rgba(255,255,255,0.03)); }
+        
+        /* LOGIN OVERLAY */
+        #loginOverlay { position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+    </style>
+</head>
+<body>
+
+    <div id="loginOverlay">
+        <h1 style="font-family:'Black Ops One'; color:#FFD700; margin-bottom:10px;">GOD MODE V2</h1>
+        <input type="password" id="pinInput" placeholder="ACCESS CODE" style="background:none; border:1px solid #333; border-bottom:2px solid #FFD700; color:#fff; text-align:center; font-size:24px; font-family:'Teko'; padding:10px; width:200px; outline:none;">
+        <button onclick="checkPin()" style="margin-top:20px; padding:10px 30px; background:#FFD700; border:none; font-family:'Black Ops One'; cursor:pointer;">ENTER</button>
+    </div>
+
+    <div id="lobbyScreen" class="hidden">
+        <div class="lobby-title">SELECT COMMAND CENTER</div>
+        <div class="grid-branches">
+            
+            <div class="branch-card" onclick="openBranch('GADING')" style="--card-color:#00F0FF; --card-glow:rgba(0, 240, 255, 0.4);">
+                <img src="1000307954.png" class="branch-logo" onerror="this.src='https://placehold.co/100x100?text=MLU'">
+                <div class="branch-name" style="color:#00F0FF">KELAPA GADING</div>
+                <div class="branch-loc">NORTH SECTOR</div>
+            </div>
+
+            <div class="branch-card" onclick="openBranch('KC')" style="--card-color:#FFD700; --card-glow:rgba(255, 215, 0, 0.4);">
+                <img src="1000320559.png" class="branch-logo" onerror="this.src='https://placehold.co/100x100?text=KC'">
+                <div class="branch-name" style="color:#FFD700">KARTIKA CHANDRA</div>
+                <div class="branch-loc">HQ SECTOR</div>
+            </div>
+
+            <div class="branch-card" onclick="openBranch('MARGONDA')" style="--card-color:#E0FFFF; --card-glow:rgba(224, 255, 255, 0.4);">
+                <img src="1000320534.png" class="branch-logo" onerror="this.src='https://placehold.co/100x100?text=DPK'">
+                <div class="branch-name" style="color:#E0FFFF">MARGONDA</div>
+                <div class="branch-loc">DEPOK RAYA</div>
+            </div>
+
+            <div class="branch-card" onclick="openBranch('RADAL')" style="--card-color:#CCFF00; --card-glow:rgba(204, 255, 0, 0.4);">
+                <div style="width:80px; height:80px; display:flex; align-items:center; justify-content:center; border:2px dashed #CCFF00; border-radius:50%; margin-bottom:15px; font-size:30px;">📡</div>
+                <div class="branch-name" style="color:#CCFF00">RADIO DALAM</div>
+                <div class="branch-loc">SOUTH SECTOR</div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="controlPanel">
+        <div class="top-bar">
+            <div>
+                <div class="active-branch-title" id="lblBranchName">NAMA CABANG</div>
+                <div style="font-size:10px; color:#888;">GOD MODE ACTIVE // <span id="lblConnection">CONNECTED</span></div>
+            </div>
+            <button class="btn-back" onclick="backToLobby()">⬅ LOBBY</button>
+        </div>
+
+        <div class="box">
+            <h3>Monitoring Slot & Kudeta</h3>
+            <div id="slotContainer" class="slot-grid">
+                </div>
+        </div>
+
+        <div class="box">
+            <h3>Daftar Antrian</h3>
+            <div id="queueList" style="max-height:200px; overflow-y:auto;"></div>
+        </div>
+
+        <div class="box" style="border-color: #ff0000;">
+            <h3 style="color:#ff0000">DANGER ZONE</h3>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                <button onclick="resetNumber()" class="btn-action" style="border-color:#ff8800; color:#ff8800;">🔄 RESET NOMOR (1)</button>
+                <button onclick="wipeData()" class="btn-action" style="border-color:#ff0000; color:#ff0000;">☢ WIPE ALL DATA</button>
+            </div>
+        </div>
+
+        <div class="box">
+            <h3>System Logs</h3>
+            <div id="logArea" style="height:100px; overflow-y:auto; font-size:10px; color:#666;">Waiting...</div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, doc, onSnapshot, runTransaction, collection, addDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // === 1. KONFIGURASI CABANG (DATABASE & TEMA) ===
+        const BRANCH_CONFIG = {
+            "GADING": {
+                name: "FC KELAPA GADING",
+                color: "#00F0FF", // Neon Blue
+                maxSlot: 3,
+                config: { apiKey: "AIzaSyB666i9lYWIpxOdkwpoX9EvFvHLmHczeq8", authDomain: "fcgadingnew22.firebaseapp.com", projectId: "fcgadingnew22", appId: "1:537736846678:web:53788d71a196423ac08af7" }
+            },
+            "KC": {
+                name: "FC KARTIKA CHANDRA",
+                color: "#FFD700", // Gold
+                maxSlot: 3,
+                config: { apiKey: "AIzaSyDDVYQSjmJEn_RvIUotSxbh8L-ysJMCthk", authDomain: "kartikachandrafc.firebaseapp.com", projectId: "kartikachandrafc", appId: "1:677704449500:web:671df8ae5cf6e66d0b6319" }
+            },
+            "MARGONDA": {
+                name: "FC MARGONDA",
+                color: "#E0FFFF", // Cyan/White
+                maxSlot: 3,
+                config: { apiKey: "AIzaSyAagBU9TGkVIHFk-eMFew4BK_ZG5UgQyYA", authDomain: "margonda-30359.firebaseapp.com", projectId: "margonda-30359", appId: "1:224624594572:web:897879cc014d763bc1f5a9" }
+            },
+            "RADAL": {
+                name: "FC RADIO DALAM",
+                color: "#CCFF00", // Neon Yellow
+                maxSlot: 3,
+                config: { apiKey: "AIzaSyAAwGboEDOjh57ZP1157SCFxR4LC-DPSeg", authDomain: "fc-radio-dalam.firebaseapp.com", projectId: "fc-radio-dalam", appId: "1:823688693955:web:330a75ed8dd445d6137a76" }
+            }
+        };
+
+        // GLOBAL VARIABLES
+        let currentApp = null;
+        let currentDb = null;
+        let unsubscribeSnap = null;
+        let currentBranchId = null;
+
+        // AUTH
+        window.checkPin = () => {
+            const p = document.getElementById('pinInput').value;
+            if(p === "090815") { // PIN Superadmin
+                document.getElementById('loginOverlay').style.display = 'none';
+                document.getElementById('lobbyScreen').classList.remove('hidden');
+            } else {
+                alert("ACCESS DENIED");
+            }
+        };
+
+        // === 2. ENGINE SWITCHER ===
+        window.openBranch = (branchId) => {
+            currentBranchId = branchId;
+            const data = BRANCH_CONFIG[branchId];
+            
+            // UI Update
+            document.documentElement.style.setProperty('--primary', data.color);
+            document.documentElement.style.setProperty('--glow', data.color + '66'); // + Transparency
+            document.getElementById('lblBranchName').innerText = data.name;
+            
+            // Hide Lobby, Show Panel
+            document.getElementById('lobbyScreen').classList.add('hidden');
+            document.getElementById('controlPanel').style.display = 'block';
+
+            // Connect Firebase
+            initFirebase(data);
+        };
+
+        window.backToLobby = () => {
+            // Disconnect
+            if(unsubscribeSnap) unsubscribeSnap();
+            currentDb = null;
+            if(currentApp)  currentApp = null; // Soft reset
+
+            // UI Reset
+            document.getElementById('controlPanel').style.display = 'none';
+            document.getElementById('lobbyScreen').classList.remove('hidden');
+            document.documentElement.style.setProperty('--primary', '#FFD700'); // Reset to Gold default
+        };
+
+        function initFirebase(branchData) {
+            // Karena SDK modul, kita init app baru tiap switch. 
+            // Note: Idealnya di cache, tapi untuk 4 cabang, init ulang aman untuk memutus koneksi lama.
+            try {
+                // Hapus instance lama jika nama sama (workaround firebase web)
+                currentApp = initializeApp(branchData.config, branchData.name + "_" + Date.now()); 
+                currentDb = getFirestore(currentApp);
+                
+                startListening(branchData.maxSlot);
+            } catch(e) {
+                alert("Koneksi Error: " + e.message);
+            }
+        }
+
+        // === 3. LOGIC MONITORING ===
+        function startListening(maxSlot) {
+            const mainRef = doc(currentDb, "antrian", "utama");
+            const logRef = collection(currentDb, "activityLog");
+
+            unsubscribeSnap = onSnapshot(mainRef, (snap) => {
+                if(!snap.exists()) {
+                    // Jika DB Kosong (Project Baru), buat struktur default
+                    alert("Database Kosong/Baru. Menginisialisasi...");
+                    runTransaction(currentDb, async(t) => { t.set(mainRef, { chargingSlots: Array(maxSlot).fill(null), waitingQueue: [] }); });
+                    return;
+                }
+                const d = snap.data();
+                renderSlots(d.chargingSlots || [], maxSlot);
+                renderQueue(d.waitingQueue || []);
+            });
+        }
+
+        function renderSlots(slots, max) {
+            // Pastikan array sesuai max slot cabang
+            const slotArr = [...slots];
+            while(slotArr.length < max) slotArr.push(null);
+
+            const container = document.getElementById('slotContainer');
+            container.innerHTML = '';
+
+            slotArr.forEach((s, i) => {
+                const div = document.createElement('div');
+                if(s) {
+                    div.className = 'slot-item slot-active';
+                    div.innerHTML = `
+                        <div style="font-size:24px; font-weight:bold; color:var(--primary)">${s.plat}</div>
+                        <div style="font-size:12px; color:#fff">${s.userName}</div>
+                        <div style="margin-top:auto; width:100%;">
+                            <button onclick="window.kickUser(${i})" class="btn-action" style="width:100%; border-color:#ff0000; color:#ff0000; font-size:12px;">STOP / KICK</button>
+                        </div>
+                    `;
+                } else {
+                    div.className = 'slot-item';
+                    div.innerHTML = `
+                        <div style="margin:auto; color:#555;">KOSONG</div>
+                        <button onclick="window.forceFill(${i})" class="btn-action" style="font-size:10px;">+ ISI</button>
+                    `;
+                }
+                container.appendChild(div);
+            });
+        }
+
+        function renderQueue(queue) {
+            const list = document.getElementById('queueList');
+            list.innerHTML = '';
+            if(queue.length === 0) list.innerHTML = '<div style="text-align:center; color:#555; padding:10px;">TIDAK ADA ANTRIAN</div>';
+            
+            queue.forEach((q, idx) => {
+                const div = document.createElement('div');
+                div.style.cssText = "display:flex; justify-content:space-between; border-bottom:1px solid #333; padding:5px; align-items:center;";
+                div.innerHTML = `
+                    <div><b style="color:var(--primary)">${q.plat}</b> <span style="font-size:10px; color:#aaa;">(${q.userName})</span></div>
+                    <button onclick="window.removeQueue('${q.plat}')" style="background:#300; border:1px solid #f00; color:#f00; cursor:pointer;">X</button>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        // === 4. ACTIONS (GOD MODE) ===
+        window.kickUser = (index) => {
+            if(!confirm("Keluarkan user slot " + (index+1) + "?")) return;
+            const ref = doc(currentDb, "antrian", "utama");
+            runTransaction(currentDb, async(t) => {
+                const d = (await t.get(ref)).data();
+                d.chargingSlots[index] = null;
+                t.update(ref, { chargingSlots: d.chargingSlots });
+            }).then(() => logAct("KICK SLOT " + (index+1)));
+        };
+
+        window.forceFill = (index) => {
+            const p = prompt("Masukkan Plat:"); if(!p) return;
+            const n = prompt("Nama:");
+            const ref = doc(currentDb, "antrian", "utama");
+            runTransaction(currentDb, async(t) => {
+                const d = (await t.get(ref)).data();
+                if(d.chargingSlots[index]) return alert("Slot isi!");
+                d.chargingSlots[index] = { plat: p.toUpperCase(), userName: n || "ADMIN", startTime: Date.now(), role: "ADMIN_PUSH" };
+                t.update(ref, { chargingSlots: d.chargingSlots });
+            });
+        };
+
+        window.removeQueue = (plat) => {
+            const ref = doc(currentDb, "antrian", "utama");
+            runTransaction(currentDb, async(t) => {
+                const d = (await t.get(ref)).data();
+                const newQ = d.waitingQueue.filter(x => x.plat !== plat);
+                t.update(ref, { waitingQueue: newQ });
+            });
+        };
+
+        window.resetNumber = () => {
+            if(!confirm("Reset Nomor Antrian jadi 1? (User tetap ada)")) return;
+            const ref = doc(currentDb, "antrian", "utama");
+            updateDoc(ref, { lastTicket: 0 }).then(() => alert("Nomor Reset!"));
+        };
+
+        window.wipeData = () => {
+            if(!confirm("BAHAYA: HAPUS SEMUA USER DAN ANTRIAN?")) return;
+            const ref = doc(currentDb, "antrian", "utama");
+            const max = BRANCH_CONFIG[currentBranchId].maxSlot;
+            updateDoc(ref, { chargingSlots: Array(max).fill(null), waitingQueue: [], lastTicket: 0 }).then(() => alert("SYSTEM WIPED!"));
+        };
+
+        function logAct(act) {
+            const logRef = collection(currentDb, "activityLog");
+            addDoc(logRef, { actor: "SUPERADMIN", action: act, timestamp: new Date() });
+            document.getElementById('logArea').innerHTML = `<div>> ${act}</div>` + document.getElementById('logArea').innerHTML;
+        }
+
+    </script>
+</body>
+</html>
