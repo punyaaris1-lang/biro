@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TEST BADGE PEA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            background: #000; 
+            display: flex; 
+            flex-direction: column;
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            font-family: sans-serif; 
+            color: #fff;
+            gap: 30px;
+        }
+        
+        h2 {
+            font-family: 'Black Ops One';
+            color: #d900ff;
+            text-shadow: 0 0 10px rgba(217, 0, 255, 0.5);
+            letter-spacing: 2px;
+            margin: 0;
+        }
+
+        /* === CSS BADGE PEA (STICKER) === */
+        .badge-pea {
+            width: 130px; 
+            height: 45px;
+            background: #1a002b; /* Ungu Gelap */
+            border: 2px solid #d900ff; /* Ungu Neon */
+            border-radius: 8px;
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            position: relative; 
+            box-shadow: 0 0 20px rgba(217, 0, 255, 0.6);
+            overflow: visible; /* Biar kepala bisa nonjol keluar dikit */
+        }
+
+        /* Background Kedip-Kedip */
+        .badge-pea::before {
+            content: ''; position: absolute; inset: 0;
+            background: rgba(217, 0, 255, 0.2);
+            animation: blinkFast 0.5s infinite alternate;
+            border-radius: 6px;
+        }
+
+        .pea-text {
+            font-family: 'Black Ops One'; 
+            font-size: 16px; 
+            color: #fff;
+            margin-right: 10px; 
+            text-shadow: 0 0 5px #d900ff;
+            z-index: 2;
+        }
+
+        /* Container untuk Kepala (Agar bisa diatur posisinya) */
+        .pea-head-wrapper {
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+        }
+
+        /* ANIMASI KEPALA MUTER & OLENG */
+        .pea-spin {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* Agar gambar tidak gepeng */
+            filter: drop-shadow(0 0 5px #d900ff);
+            animation: peaSpin 1.5s infinite linear; /* Muter 1.5 detik */
+        }
+
+        /* Keyframes: Muter 360 + Efek Oleng (Scale) */
+        @keyframes peaSpin {
+            0%   { transform: rotate(0deg) scale(1); }
+            25%  { transform: rotate(90deg) scale(1.2); } /* Membesar dikit pas miring */
+            50%  { transform: rotate(180deg) scale(1); }  /* Normal pas kebalik */
+            75%  { transform: rotate(270deg) scale(0.8); } /* Mengecil dikit */
+            100% { transform: rotate(360deg) scale(1); }
+        }
+
+        @keyframes blinkFast {
+            0% { opacity: 0.3; } 100% { opacity: 0.8; }
+        }
+
+        .note { color: #888; font-size: 10px; margin-top: -10px; }
+
+    </style>
+</head>
+<body>
+
+    <h2>KOKOH PEA</h2>
+
+
+    <br>
+
+    <div class="badge-pea">
+        <div class="pea-text">KOKOH PEA</div>
+        <div class="pea-head-wrapper">
+            <img src="pea.png" class="pea-spin" alt="PEA" onerror="this.src='https://placehold.co/50x50/purple/white?text=FOTO'">
+        </div>
+    </div>
+    <div class="note"></div>
+
+</body>
+</html>
