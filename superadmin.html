@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CENTRAL COMMAND - GOD MODE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Teko:wght@300;500;700&family=JetBrains+Mono:wght@400;700&family=Black+Ops+One&display=swap" rel="stylesheet">
+    <style>
+        /* === STYLE BASE === */
+        :root { 
+            --bg: #050505; --panel: #111; --border: #333; 
+            --theme-color: #FFD700; /* DINAMIS */
+            --gold: var(--theme-color); 
+            --red: #FF003C; --blue: #00F0FF; --green: #00FF00; --purple: #9D00FF; --orange: #FFAA00;
+        }
+        body { background: #0a0a0a; color: #fff; font-family: 'JetBrains Mono', monospace; padding: 10px; font-size: 11px; margin: 0; min-height: 100vh; display:flex; flex-direction: column; }
+        .hidden { display: none !important; }
+        
+        /* BOX & BUTTONS */
+        .box { border: 1px solid #333; padding: 15px; margin-bottom: 15px; background: #000; border-radius: 8px; border-left: 3px solid var(--theme-color); box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        h3 { margin: 0 0 15px 0; color: var(--theme-color); border-bottom: 1px solid #333; padding-bottom: 5px; font-family: 'Teko', sans-serif; font-size: 20px; letter-spacing: 1px; display:flex; justify-content:space-between; align-items:center; }
+        
+        button { cursor: pointer; padding: 6px 10px; font-weight: bold; font-family: 'Teko'; font-size: 14px; border-radius: 4px; transition: 0.2s; border: none; text-transform: uppercase; }
+        button:hover { filter: brightness(1.2); transform: translateY(-1px); }
+        
+        .btn-gold { background: linear-gradient(45deg, #b8860b, var(--theme-color)); color: #000; }
+        .btn-red { background: linear-gradient(45deg, #900, #d00); color: #fff; }
+        .btn-blue { background: linear-gradient(45deg, #005, #009); color: #fff; }
+        .btn-green { background: linear-gradient(45deg, #006400, #00FF00); color: #000; }
+        .btn-mini { padding: 2px 6px; font-size: 11px; margin: 1px; }
+
+        input, select { background: #1a1a1a; color: #fff; border: 1px solid #444; padding: 8px; border-radius: 4px; font-family: 'JetBrains Mono'; width: 100%; box-sizing: border-box; outline:none; }
+        input:focus { border-color: var(--theme-color); }
+
+        /* GRID SLOTS */
+        .slot-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 10px; }
+        .slot-item { border: 1px solid #333; padding: 10px; background: #050505; text-align: center; border-radius: 5px; min-height: 110px; display: flex; flex-direction: column; justify-content: space-between; }
+        
+        /* TABLE ANTRIAN */
+        table { width: 100%; border-collapse: collapse; margin-top: 5px; font-size: 11px; }
+        td, th { border-bottom: 1px solid #222; padding: 8px; text-align: left; vertical-align: middle; }
+        th { color: var(--theme-color); text-transform: uppercase; font-size: 10px; letter-spacing: 1px; }
+        tr:nth-child(even) { background: rgba(255,255,255,0.02); }
+
+        /* LOGS */
+        .term-container { background: #000; border: 1px solid #333; height: 150px; overflow-y: auto; padding: 10px; font-size: 10px; color: #ccc; display: flex; flex-direction: column-reverse; }
+        .log-line { margin-bottom: 4px; border-bottom: 1px solid #111; padding-bottom: 2px; }
+
+        /* LOBBY & LOGIN */
+        #lobbyScreen, #loginOverlay { position: fixed; inset: 0; background: #050505; z-index: 5000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+        .lobby-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 20px; width: 100%; max-width: 600px; }
+        .branch-card { background: #111; border: 1px solid #333; border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; transition: 0.3s; display: flex; flex-direction: column; align-items: center; }
+        .branch-card:hover { transform: scale(1.05); border-color: var(--c-color); box-shadow: 0 0 20px var(--c-glow); }
+        .branch-logo { width: 80px; height: 80px; object-fit: contain; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+
+    <div id="loginOverlay">
+        <div style="border:1px solid var(--theme-color); padding:30px; background:#111; text-align:center; border-radius:10px;">
+            <h2 style="font-family:'Teko'; color:var(--theme-color); margin:0 0 20px 0; font-size:36px;">GOD MODE V4</h2>
+            <input type="password" id="loginPin" placeholder="PIN AKSES" style="text-align:center; font-size:24px; letter-spacing:5px; margin-bottom:20px;">
+            <button onclick="attemptLogin()" class="btn-gold" style="width:100%; font-size:18px;">MASUK</button>
+        </div>
+    </div>
+
+    <div id="lobbyScreen" class="hidden">
+        <h1 style="font-family:'Black Ops One'; font-size:32px; color:#fff; margin-bottom:10px;">CENTRAL COMMAND</h1>
+        <div style="font-size:12px; color:#666; margin-bottom:30px; letter-spacing:3px;">SELECT AREA OF OPERATION</div>
+        <div class="lobby-grid">
+            <div class="branch-card" onclick="loadBranch('GADING')" style="--c-color:#00F0FF; --c-glow:rgba(0,240,255,0.4)">
+                <img src="1000307954.png" class="branch-logo" onerror="this.src='https://placehold.co/100?text=GDG'">
+                <div style="font-family:'Black Ops One'; color:#00F0FF;">GADING</div>
+            </div>
+            <div class="branch-card" onclick="loadBranch('KC')" style="--c-color:#FFD700; --c-glow:rgba(255,215,0,0.4)">
+                <img src="1000320559.png" class="branch-logo" onerror="this.src='https://placehold.co/100?text=KC'">
+                <div style="font-family:'Black Ops One'; color:#FFD700;">KARTIKA</div>
+            </div>
+            <div class="branch-card" onclick="loadBranch('MARGONDA')" style="--c-color:#E0FFFF; --c-glow:rgba(224,255,255,0.4)">
+                <img src="1000320534.png" class="branch-logo" onerror="this.src='https://placehold.co/100?text=DPK'">
+                <div style="font-family:'Black Ops One'; color:#E0FFFF;">MARGONDA</div>
+            </div>
+            <div class="branch-card" onclick="loadBranch('RADAL')" style="--c-color:#CCFF00; --c-glow:rgba(204,255,0,0.4)">
+                <div style="width:80px; height:80px; display:flex; align-items:center; justify-content:center; font-size:40px; color:#CCFF00;">📡</div>
+                <div style="font-family:'Black Ops One'; color:#CCFF00;">RADAL</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="controlPanel" class="hidden">
+        
+        <div style="display:flex; justify-content:space-between; margin-bottom:15px; align-items:center;">
+            <div><span style="font-family:'Teko'; font-size:28px; color:var(--theme-color);"><span id="lblBranchTitle">SUPER ADMIN</span> <span style="color:#fff; font-size:12px;">(GOD MODE)</span></span></div>
+            <button onclick="backToLobby()" style="background:#333; color:#aaa; border:1px solid #555;">⬅ LOBBY</button>
+        </div>
+
+        <div class="box">
+            <h3>LIVE MONITORING (SWAP & CONTROL)</h3>
+            <div class="slot-grid" id="slotGridArea"></div>
+            
+            <div style="background:#111; padding:10px; border-radius:5px; display:flex; align-items:center; gap:5px; margin-top:10px;">
+                <span style="font-size:10px; color:#888;">TUKAR POSISI:</span>
+                <select id="moveSrc" style="padding:5px; width:auto;"><option value="0">SLOT 1</option><option value="1">SLOT 2</option><option value="2">SLOT 3</option></select>
+                <span style="color:#666;">➡</span>
+                <select id="moveDest" style="padding:5px; width:auto;"><option value="1">SLOT 2</option><option value="2">SLOT 3</option><option value="0">SLOT 1</option></select>
+                <button onclick="moveSlotUser()" class="btn-blue btn-mini">GO</button>
+            </div>
+        </div>
+
+        <div class="box">
+            <h3>
+                DAFTAR ANTRIAN LENGKAP
+                <button onclick="resetDaily()" class="btn-red btn-mini">♻ RESET NOMOR (1)</button>
+            </h3>
+            
+            <div id="queueTableArea" style="max-height:250px; overflow-y:auto; border:1px solid #222; margin-bottom:10px;"></div>
+            
+            <div style="background:#111; padding:10px; border-radius:5px;">
+                <div style="font-size:10px; color:var(--theme-color); margin-bottom:5px;">FORCE INPUT (VIP/MANUAL)</div>
+                <div style="display:flex; gap:5px;">
+                    <input id="newPlat" placeholder="PLAT NOMOR" style="flex:2; text-transform:uppercase;">
+                    <input id="newNama" placeholder="NAMA" style="flex:2;">
+                </div>
+                <div style="display:flex; gap:2px; margin-top:5px;">
+                    <button onclick="manualAdd('queue')" class="btn-green" style="flex:2;">+ ANTRIAN</button>
+                    <button onclick="manualAdd(0)" class="btn-gold" style="flex:1;">S1</button>
+                    <button onclick="manualAdd(1)" class="btn-gold" style="flex:1;">S2</button>
+                    <button onclick="manualAdd(2)" class="btn-gold" style="flex:1;">S3</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="box" style="border-left-color: var(--blue);">
+            <h3 style="color:var(--blue);">SET JABATAN PENGURUS</h3>
+            <div style="display:flex; gap:5px; margin-bottom:5px;">
+                <input id="rolePlat" placeholder="PLAT" style="flex:1; text-transform:uppercase;">
+                <select id="roleSelect" style="flex:2;" onchange="checkCustomRole(this)">
+                    <option value="MEMBER">👤 MEMBER</option>
+                    <option value="CUSTOM">✍ INPUT MANUAL (CUSTOM)...</option>
+                    <optgroup label="BOARD"><option value="KETUM">👑 KETUM</option><option value="WAKETUM">⭐ WAKETUM</option><option value="PEMBINA">📜 PEMBINA</option></optgroup>
+                    <optgroup label="OPS"><option value="KORLAP">🔴 KORLAP</option><option value="SATGAS">⚡ SATGAS</option><option value="HUMAS">📢 HUMAS</option></optgroup>
+                </select>
+                <button onclick="setJabatan()" class="btn-blue">SIMPAN</button>
+            </div>
+        </div>
+
+        <div class="box" style="border-left-color: var(--purple);">
+            <h3 style="color:var(--purple);">KEAMANAN (QR)</h3>
+            <div style="text-align:center; margin-bottom:10px;">
+                <div id="activeQRDisplay" style="font-family:'Teko'; font-size:20px; color:#fff;">LOADING...</div>
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 2fr; gap:5px;">
+                <button onclick="setActiveQR('OFF')" class="btn-green">🌍 GPS ONLY</button>
+                <div style="display:flex; gap:2px;">
+                    <button onclick="setActiveQR('A')" class="btn-purple" style="flex:1;">KD-A</button>
+                    <button onclick="setActiveQR('B')" class="btn-purple" style="flex:1;">KD-B</button>
+                    <button onclick="setActiveQR('C')" class="btn-purple" style="flex:1;">KD-C</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="box" style="border-left-color: var(--red);">
+            <h3 style="color:var(--red);">DANGER & RECOVERY</h3>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                <button onclick="checkSnapshot()" class="btn-blue">📂 CEK SNAPSHOT (BACKUP)</button>
+                <button onclick="resetTotal()" class="btn-red">☣ WIPE ALL DATA</button>
+            </div>
+            <div id="recoveryPanel" style="display:none; margin-top:10px; background:#220000; padding:10px; border:1px solid red;">
+                <div id="recList" style="font-size:10px; color:#fff; margin-bottom:5px;"></div>
+                <button onclick="executeRestore()" class="btn-green" style="width:100%;">PULIHKAN DATA</button>
+            </div>
+        </div>
+
+        <div class="box">
+            <h3>LOGS</h3>
+            <div class="term-container" id="termLog"></div>
+        </div>
+
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, doc, onSnapshot, runTransaction, collection, addDoc, query, orderBy, limit, setDoc, getDocs, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const BRANCHES = {
+            "GADING": { name: "FC GADING", color: "#00F0FF", maxSlot: 3, cfg: { apiKey: "AIzaSyB666i9lYWIpxOdkwpoX9EvFvHLmHczeq8", authDomain: "fcgadingnew22.firebaseapp.com", projectId: "fcgadingnew22", appId: "1:537736846678:web:53788d71a196423ac08af7" } },
+            "KC": { name: "FC KARTIKA", color: "#FFD700", maxSlot: 3, cfg: { apiKey: "AIzaSyDDVYQSjmJEn_RvIUotSxbh8L-ysJMCthk", authDomain: "kartikachandrafc.firebaseapp.com", projectId: "kartikachandrafc", appId: "1:677704449500:web:671df8ae5cf6e66d0b6319" } },
+            "MARGONDA": { name: "FC MARGONDA", color: "#E0FFFF", maxSlot: 3, cfg: { apiKey: "AIzaSyAagBU9TGkVIHFk-eMFew4BK_ZG5UgQyYA", authDomain: "margonda-30359.firebaseapp.com", projectId: "margonda-30359", appId: "1:224624594572:web:897879cc014d763bc1f5a9" } },
+            "RADAL": { name: "FC RADAL", color: "#CCFF00", maxSlot: 3, cfg: { apiKey: "AIzaSyAAwGboEDOjh57ZP1157SCFxR4LC-DPSeg", authDomain: "fc-radio-dalam.firebaseapp.com", projectId: "fc-radio-dalam", appId: "1:823688693955:web:330a75ed8dd445d6137a76" } }
+        };
+
+        let curApp, db, unsub, curBranchData, cachedData, snapshotData;
+        let customRoleVal = "";
+
+        window.attemptLogin = () => { if(document.getElementById('loginPin').value==="090815") { document.getElementById('loginOverlay').style.display='none'; document.getElementById('lobbyScreen').classList.remove('hidden'); } else alert("PIN SALAH"); };
+        
+        window.loadBranch = (code) => {
+            curBranchData = BRANCHES[code];
+            document.documentElement.style.setProperty('--theme-color', curBranchData.color);
+            document.getElementById('lblBranchTitle').innerText = curBranchData.name;
+            if(curApp) curApp = null;
+            try {
+                curApp = initializeApp(curBranchData.cfg, code + "_" + Date.now());
+                db = getFirestore(curApp);
+                document.getElementById('lobbyScreen').classList.add('hidden');
+                document.getElementById('controlPanel').classList.remove('hidden');
+                startListening();
+            } catch(e) { alert("Error: " + e.message); }
+        };
+
+        window.backToLobby = () => { if(unsub) unsub(); document.getElementById('controlPanel').classList.add('hidden'); document.getElementById('lobbyScreen').classList.remove('hidden'); };
+
+        function startListening() {
+            const mainRef = doc(db, "antrian", "utama");
+            const logRef = collection(db, "activityLog");
+            unsub = onSnapshot(mainRef, (snap) => {
+                if(!snap.exists()) return;
+                const d = snap.data(); cachedData = d;
+                renderSlots(d.chargingSlots || []);
+                renderQueueTable(d.waitingQueue || []);
+                renderSecurity(d.activeQrCode);
+            });
+            onSnapshot(query(logRef, orderBy("timestamp", "desc"), limit(20)), (snap) => {
+                let h=''; snap.forEach(d=>{const x=d.data(); h+=`<div class="log-line"><b>${x.actor}</b>: ${x.action} - ${x.details}</div>`});
+                document.getElementById('termLog').innerHTML = h;
+            });
+        }
+
+        // === RENDER UI ===
+        function renderSlots(slots) {
+            const el = document.getElementById('slotGridArea'); el.innerHTML = '';
+            for(let i=0; i<curBranchData.maxSlot; i++) {
+                const s = slots[i];
+                const div = document.createElement('div'); div.className = 'slot-item';
+                if(s) {
+                    div.style.borderColor = "var(--theme-color)";
+                    div.innerHTML = `<div style="font-size:16px; font-weight:bold; color:var(--theme-color)">${s.plat}</div><div>${s.userName}</div>
+                    <div style="display:flex; gap:2px; margin-top:auto;">
+                        <button onclick="window.editData('slot', ${i})" class="btn-blue btn-mini" style="width:50%;">EDIT</button>
+                        <button onclick="kickToQueue(${i})" class="btn-orange btn-mini" style="width:50%;">TURUN</button>
+                    </div>
+                    <button onclick="forceEmptySlot(${i})" class="btn-red btn-mini" style="width:100%; margin-top:2px;">KOSONGKAN</button>`;
+                } else {
+                    div.innerHTML = `<div style="color:#555; margin:auto;">KOSONG</div><button onclick="manualAdd(${i})" class="btn-green btn-mini" style="width:100%;">+ ISI</button>`;
+                }
+                el.appendChild(div);
+            }
+        }
+
+        function renderQueueTable(queue) {
+            const el = document.getElementById('queueTableArea');
+            let h = `<table><tr><th width="20">#</th><th>PLAT / NAMA</th><th>PINDAH KE</th><th>AKSI</th></tr>`;
+            if(queue.length===0) h+=`<tr><td colspan="4" style="text-align:center; padding:10px; color:#555;">TIDAK ADA ANTRIAN</td></tr>`;
+            
+            queue.forEach((q, idx) => {
+                // TOMBOL PINDAH S1, S2, S3
+                let moveBtns = '';
+                for(let i=0; i<curBranchData.maxSlot; i++) { moveBtns += `<button class="btn-gold btn-mini" onclick="forceToSlot('${q.plat}', ${i})">S${i+1}</button> `; }
+                
+                h += `<tr>
+                    <td style="color:var(--theme-color); font-weight:bold;">${q.qNo}</td>
+                    <td><b>${q.plat}</b><br><span style="color:#888; font-size:10px;">${q.userName}</span> <span style="font-size:9px; border:1px solid #444; padding:0 3px;">${q.role||'GUEST'}</span></td>
+                    <td>${moveBtns}</td>
+                    <td>
+                        <button class="btn-blue btn-mini" onclick="switchQueue(${idx}, -1)">⬆</button>
+                        <button class="btn-blue btn-mini" onclick="switchQueue(${idx}, 1)">⬇</button>
+                        <button class="btn-red btn-mini" onclick="editData('queue', '${q.plat}')">X</button>
+                    </td>
+                </tr>`;
+            });
+            el.innerHTML = h + `</table>`;
+        }
+
+        function renderSecurity(code) {
+            document.getElementById('activeQRDisplay').innerText = (!code || code==='OFF') ? "MODE GPS (OFF)" : "MODE QR: " + code.replace('FC-CODE-','');
+        }
+
+        // === FITUR ADMIN LENGKAP ===
+        window.manualAdd = async (target) => {
+            const p = document.getElementById('newPlat').value.trim().toUpperCase();
+            const n = document.getElementById('newNama').value.trim().toUpperCase();
+            
+            // Jika targetnya slot dan input kosong, tanya manual
+            if (typeof target === 'number' && !p) {
+                const promptP = prompt(`MASUKKAN PLAT UNTUK SLOT ${target+1}:`);
+                if(!promptP) return;
+                const promptN = prompt(`MASUKKAN NAMA UNTUK ${promptP}:`);
+                
+                const mainRef = doc(db, "antrian", "utama");
+                runTransaction(db, async(t) => {
+                    const d = (await t.get(mainRef)).data();
+                    if(!d.chargingSlots) d.chargingSlots = Array(curBranchData.maxSlot).fill(null);
+                    if(d.chargingSlots[target]) throw "Slot Penuh!";
+                    d.chargingSlots[target] = { plat:promptP.toUpperCase(), userName:(promptN||"ADMIN").toUpperCase(), role:"ADMIN_PUSH", startTime:Date.now(), qNo:"ADM", entryTime:Date.now() };
+                    t.update(mainRef, { chargingSlots: d.chargingSlots });
+                    addLog("SUPERADMIN", "MANUAL_INPUT_SLOT", `Forced ${promptP} to S${target+1}`);
+                }).catch(e=>alert(e));
+                return;
+            }
+
+            if(!p) return alert("Plat Wajib Diisi di Form!");
+            
+            const mainRef = doc(db, "antrian", "utama");
+            runTransaction(db, async(t) => {
+                const d = (await t.get(mainRef)).data();
+                if(!d.chargingSlots) d.chargingSlots = Array(curBranchData.maxSlot).fill(null);
+                
+                // Cek duplikat
+                if([...d.chargingSlots, ...d.waitingQueue].some(u => u && u.plat === p)) throw "User sudah ada!";
+
+                const u = { plat:p, userName:n||"ADMIN", role:"ADMIN_PUSH", startTime:Date.now(), qNo:(d.lastTicket||0)+1, entryTime:Date.now() };
+                
+                if(target === 'queue') { 
+                    d.waitingQueue.push(u); d.lastTicket = u.qNo; 
+                } else {
+                    if(d.chargingSlots[target]) throw "Slot Penuh!";
+                    d.chargingSlots[target] = u;
+                }
+                
+                t.update(mainRef, { waitingQueue:d.waitingQueue, chargingSlots:d.chargingSlots, lastTicket:d.lastTicket||0 });
+                addLog("SUPERADMIN", "MANUAL_INPUT", `Add ${p}`);
+            }).then(()=>{ document.getElementById('newPlat').value=''; document.getElementById('newNama').value=''; }).catch(e=>alert(e));
+        };
+
+        window.kickToQueue = (slotIdx) => {
+            runTransaction(db, async(t) => {
+                const ref = doc(db, "antrian", "utama"); const d = (await t.get(ref)).data();
+                const u = d.chargingSlots[slotIdx];
+                if(!u) throw "Slot Kosong";
+                
+                d.chargingSlots[slotIdx] = null;
+                d.waitingQueue.unshift(u); // Masukkan ke paling depan antrian
+                
+                t.update(ref, { chargingSlots: d.chargingSlots, waitingQueue: d.waitingQueue });
+                addLog("SUPERADMIN", "DOWN_TO_QUEUE", `${u.plat} S${slotIdx+1} -> Q`);
+            }).catch(e=>alert(e));
+        };
+
+        window.forceEmptySlot = (slotIdx) => {
+            if(!confirm("KOSONGKAN SLOT INI? (User akan dihapus total)")) return;
+            runTransaction(db, async(t) => {
+                const ref = doc(db, "antrian", "utama"); const d = (await t.get(ref)).data();
+                d.chargingSlots[slotIdx] = null;
+                t.update(ref, { chargingSlots: d.chargingSlots });
+                addLog("SUPERADMIN", "EMPTY_SLOT", `Cleared Slot ${slotIdx+1}`);
+            });
+        };
+
+        window.moveSlotUser = () => {
+            const s1 = document.getElementById('moveSrc').value;
+            const s2 = document.getElementById('moveDest').value;
+            if(s1==s2) return alert("Pilih slot beda!");
+            runTransaction(db, async(t) => {
+                const ref = doc(db, "antrian", "utama"); const d = (await t.get(ref)).data();
+                if(!d.chargingSlots) d.chargingSlots = Array(curBranchData.maxSlot).fill(null);
+                const temp = d.chargingSlots[s1]; d.chargingSlots[s1] = d.chargingSlots[s2]; d.chargingSlots[s2] = temp;
+                t.update(ref, { chargingSlots: d.chargingSlots });
+                addLog("SUPERADMIN", "SWAP_SLOT", `S${parseInt(s1)+1} <-> S${parseInt(s2)+1}`);
+            });
+        };
+
+        window.switchQueue = (idx, dir) => {
+            runTransaction(db, async(t) => {
+                const ref = doc(db, "antrian", "utama"); const d = (await t.get(ref)).data();
+                let q = d.waitingQueue; const target = idx + dir;
+                if(target >= 0 && target < q.length) {
+                    [q[idx], q[target]] = [q[target], q[idx]];
+                    t.update(ref, { waitingQueue: q });
+                }
+            });
+        };
+
+        window.forceToSlot = (plat, slotIdx) => {
+            runTransaction(db, async(t) => {
+                const ref = doc(db, "antrian", "utama"); const d = (await t.get(ref)).data();
+                if(!d.chargingSlots) d.chargingSlots = Array(curBranchData.maxSlot).fill(null);
+                if(d.chargingSlots[slotIdx]) throw "SLOT TERISI!";
+                
+                const qIdx = d.waitingQueue.findIndex(x => x.plat === plat);
+                if(qIdx === -1) throw "User hilang";
+                const user = d.waitingQueue.splice(qIdx, 1)[0];
+                user.startTime = Date.now(); d.chargingSlots[slotIdx] = user;
+                
+                t.update(ref, { chargingSlots: d.chargingSlots, waitingQueue: d.waitingQueue });
+                addLog("SUPERADMIN", "FORCE_TO_SLOT", `${plat} -> S${slotIdx+1}`);
+            }).catch(e => alert(e));
+        };
+
+        window.editData = (type, id) => {
+            let oldP = "", oldN = "";
+            if(type === 'slot') { 
+                if(!cachedData.chargingSlots[id]) return alert("Slot Kosong"); 
+                oldP = cachedData.chargingSlots[id].plat; oldN = cachedData.chargingSlots[id].userName; 
+            } else { 
+                const q = cachedData.waitingQueue.find(x => x.plat === id); oldP = q.plat; oldN = q.userName; 
+            }
+            if(confirm(`Klik OK utk EDIT. Klik CANCEL utk HAPUS ${oldP}.`)) {
+                const newP = prompt("PLAT:", oldP); const newN = prompt("NAMA:", oldN); if(!newP) return;
+                runTransaction(db, async(t) => {
+                    const ref = doc(db, "antrian", "utama"); const d = (await t.get(ref)).data();
+                    if(type==='slot') { d.chargingSlots[id].plat=newP; d.chargingSlots[id].userName=newN; }
+                    else { const idx=d.waitingQueue.findIndex(x=>x.plat===id); if(idx>-1) { d.waitingQueue[idx].plat=newP; d.waitingQueue[idx].userName=newN; } }
+                    t.update(ref, {chargingSlots:d.chargingSlots, waitingQueue:d.waitingQueue});
+                });
+            } else {
+                if(!confirm("Yakin Hapus/Kick?")) return;
+                runTransaction(db, async(t) => {
+                    const ref = doc(db, "antrian", "utama"); const d = (await t.get(ref)).data();
+                    if(type==='slot') d.chargingSlots[id] = null;
+                    else d.waitingQueue = d.waitingQueue.filter(x => x.plat !== id);
+                    t.update(ref, {chargingSlots:d.chargingSlots, waitingQueue:d.waitingQueue});
+                });
+            }
+        };
+
+        // SNAPSHOT RECOVERY
+        window.checkSnapshot = async () => {
+            const s = await getDoc(doc(db, "antrian", "snapshot"));
+            if(!s.exists()) return alert("Tidak ada backup.");
+            snapshotData = s.data();
+            document.getElementById('recList').innerText = `BACKUP: ${snapshotData.backupTime ? snapshotData.backupTime.toDate().toLocaleTimeString() : '-'}`;
+            document.getElementById('recoveryPanel').style.display = 'block';
+        };
+
+        window.executeRestore = () => {
+            if(!snapshotData) return;
+            if(!confirm("TIMPA DATA SEKARANG DENGAN BACKUP?")) return;
+            setDoc(doc(db, "antrian", "utama"), { 
+                chargingSlots: snapshotData.chargingSlots, 
+                waitingQueue: snapshotData.waitingQueue, 
+                lastTicket: snapshotData.lastTicket || 0 
+            }).then(() => { alert("RESTORED!"); document.getElementById('recoveryPanel').style.display='none'; });
+        };
+        
+        // CUSTOM ROLE CHECK
+        window.checkCustomRole = (el) => {
+            if(el.value === 'CUSTOM') {
+                const c = prompt("MASUKKAN NAMA JABATAN CUSTOM:");
+                if(c) customRoleVal = c.toUpperCase();
+                else el.value = "MEMBER";
+            } else {
+                customRoleVal = "";
+            }
+        }
+
+        window.setJabatan = () => {
+            const p = document.getElementById('rolePlat').value.toUpperCase(); 
+            let r = document.getElementById('roleSelect').value;
+            
+            if(!p) return alert("Plat?"); 
+            if(r === "CUSTOM" && customRoleVal) r = customRoleVal;
+            else if (r === "CUSTOM" && !customRoleVal) return alert("Isi nama jabatan custom dulu!");
+
+            const cleanP = p.replace(/[^A-Z0-9]/g,'');
+            setDoc(doc(db, "members", cleanP), {plat:p, role:r, verified:true}, {merge:true});
+            runTransaction(db, async(t)=>{
+                const ref=doc(db,"antrian","utama"); const d=(await t.get(ref)).data(); let upd=false;
+                const newQ=(d.waitingQueue||[]).map(q=>{if(q.plat.includes(cleanP)){upd=true; return {...q, role:r}} return q});
+                const newS=(d.chargingSlots||[]).map(s=>{if(s && s.plat.includes(cleanP)){upd=true; return {...s, role:r}} return s});
+                if(upd) t.update(ref, {waitingQueue:newQ, chargingSlots:newS});
+            }).then(()=>{alert("OK: " + r); document.getElementById('rolePlat').value='';});
+        };
+
+        window.setActiveQR = (m) => {
+            let v = (m==='OFF') ? 'OFF' : 'FC-CODE-'+m;
+            if(confirm("Ubah Security ke "+v+"?")) updateDoc(doc(db,"antrian","utama"), {activeQrCode:v});
+        };
+        
+        window.resetDaily = () => { if(confirm("Reset Nomor jadi 1?")) updateDoc(doc(db,"antrian","utama"), {waitingQueue:[], lastTicket:0}); };
+        window.resetTotal = () => { if(confirm("WIPE ALL DATA?")) setDoc(doc(db,"antrian","utama"), {chargingSlots:Array(curBranchData.maxSlot).fill(null), waitingQueue:[], lastTicket:0}); };
+        
+        function addLog(actor, act, det) { addDoc(collection(db, "activityLog"), { action: act, details: det, actor: actor, timestamp: new Date() }); }
+
+        // EXPOSE TO WINDOW
+        Object.assign(window, {
+            manualAdd, moveSlotUser, switchQueue, forceToSlot, editData, checkSnapshot, executeRestore, setJabatan, setActiveQR, resetDaily, resetTotal, kickToQueue, forceEmptySlot, checkCustomRole
+        });
+    </script>
+</body>
+</html>
