@@ -32,8 +32,8 @@
         input, select { background: #1a1a1a; color: #fff; border: 1px solid #444; padding: 8px; border-radius: 4px; font-family: 'JetBrains Mono'; width: 100%; box-sizing: border-box; outline:none; }
         input:focus { border-color: var(--theme-color); }
 
-        /* GRID SLOTS */
-        .slot-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 10px; }
+        /* GRID SLOTS - AUTO FIT UNTUK BISA 3 ATAU 5 SLOT */
+        .slot-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 10px; margin-bottom: 10px; }
         .slot-item { border: 1px solid #333; padding: 10px; background: #050505; text-align: center; border-radius: 5px; min-height: 110px; display: flex; flex-direction: column; justify-content: space-between; }
         
         /* TABLE ANTRIAN */
@@ -52,6 +52,15 @@
         .branch-card { background: #111; border: 1px solid #333; border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; transition: 0.3s; display: flex; flex-direction: column; align-items: center; }
         .branch-card:hover { transform: scale(1.05); border-color: var(--c-color); box-shadow: 0 0 20px var(--c-glow); }
         .branch-logo { width: 80px; height: 80px; object-fit: contain; margin-bottom: 10px; }
+
+        /* BADGE COLORS DINAMIS */
+        .badge-style { font-size: 9px; padding: 2px 6px; border-radius: 3px; font-weight: bold; display: inline-block; margin-top: 3px; border: 1px solid transparent; }
+        .bg-member { background: linear-gradient(135deg, #A67C00, #594300); color: #FFD700; border-color: #A67C00; }
+        .bg-board { background: linear-gradient(135deg, #FFD700, #B8860B); color: #000; border-color: #FFD700; }
+        .bg-red { background: linear-gradient(45deg, #900, #d00); color: #fff; border-color: #f00;}
+        .bg-cyan { background: linear-gradient(135deg, #00F0FF, #0088AA); color: #000; border-color: #00F0FF;}
+        .bg-custom { background: var(--theme-color); color: #000; }
+        .bg-guest { background: #333; color: #aaa; border-color: #555;}
     </style>
 </head>
 <body>
@@ -100,9 +109,9 @@
             
             <div style="background:#111; padding:10px; border-radius:5px; display:flex; align-items:center; gap:5px; margin-top:10px;">
                 <span style="font-size:10px; color:#888;">TUKAR POSISI:</span>
-                <select id="moveSrc" style="padding:5px; width:auto;"><option value="0">SLOT 1</option><option value="1">SLOT 2</option><option value="2">SLOT 3</option></select>
+                <select id="moveSrc" style="padding:5px; width:auto;"><option value="0">SLOT 1</option><option value="1">SLOT 2</option><option value="2">SLOT 3</option><option value="3" class="kc-only hidden">SLOT 4</option><option value="4" class="kc-only hidden">SLOT 5</option></select>
                 <span style="color:#666;">➡</span>
-                <select id="moveDest" style="padding:5px; width:auto;"><option value="1">SLOT 2</option><option value="2">SLOT 3</option><option value="0">SLOT 1</option></select>
+                <select id="moveDest" style="padding:5px; width:auto;"><option value="1">SLOT 2</option><option value="2">SLOT 3</option><option value="0">SLOT 1</option><option value="3" class="kc-only hidden">SLOT 4</option><option value="4" class="kc-only hidden">SLOT 5</option></select>
                 <button onclick="moveSlotUser()" class="btn-blue btn-mini">GO</button>
             </div>
         </div>
@@ -121,7 +130,7 @@
                     <input id="newPlat" placeholder="PLAT NOMOR" style="flex:2; text-transform:uppercase;">
                     <input id="newNama" placeholder="NAMA" style="flex:2;">
                 </div>
-                <div style="display:flex; gap:2px; margin-top:5px;">
+                <div style="display:flex; gap:2px; margin-top:5px;" id="forceInputBtns">
                     <button onclick="manualAdd('queue')" class="btn-green" style="flex:2;">+ ANTRIAN</button>
                     <button onclick="manualAdd(0)" class="btn-gold" style="flex:1;">S1</button>
                     <button onclick="manualAdd(1)" class="btn-gold" style="flex:1;">S2</button>
@@ -184,20 +193,37 @@
 
         const BRANCHES = {
             "GADING": { name: "FC GADING", color: "#00F0FF", maxSlot: 3, cfg: { apiKey: "AIzaSyB666i9lYWIpxOdkwpoX9EvFvHLmHczeq8", authDomain: "fcgadingnew22.firebaseapp.com", projectId: "fcgadingnew22", appId: "1:537736846678:web:53788d71a196423ac08af7" } },
-            "KC": { name: "FC KARTIKA", color: "#FFD700", maxSlot: 3, cfg: { apiKey: "AIzaSyDDVYQSjmJEn_RvIUotSxbh8L-ysJMCthk", authDomain: "kartikachandrafc.firebaseapp.com", projectId: "kartikachandrafc", appId: "1:677704449500:web:671df8ae5cf6e66d0b6319" } },
+            "KC": { name: "FC KARTIKA", color: "#FFD700", maxSlot: 5, cfg: { apiKey: "AIzaSyDDVYQSjmJEn_RvIUotSxbh8L-ysJMCthk", authDomain: "kartikachandrafc.firebaseapp.com", projectId: "kartikachandrafc", appId: "1:677704449500:web:671df8ae5cf6e66d0b6319" } },
             "MARGONDA": { name: "FC MARGONDA", color: "#E0FFFF", maxSlot: 3, cfg: { apiKey: "AIzaSyAagBU9TGkVIHFk-eMFew4BK_ZG5UgQyYA", authDomain: "margonda-30359.firebaseapp.com", projectId: "margonda-30359", appId: "1:224624594572:web:897879cc014d763bc1f5a9" } },
             "RADAL": { name: "FC RADAL", color: "#CCFF00", maxSlot: 3, cfg: { apiKey: "AIzaSyAAwGboEDOjh57ZP1157SCFxR4LC-DPSeg", authDomain: "fc-radio-dalam.firebaseapp.com", projectId: "fc-radio-dalam", appId: "1:823688693955:web:330a75ed8dd445d6137a76" } }
         };
 
         let curApp, db, unsub, curBranchData, cachedData, snapshotData;
         let customRoleVal = "";
+        let isKC = false;
 
         window.attemptLogin = () => { if(document.getElementById('loginPin').value==="090815") { document.getElementById('loginOverlay').style.display='none'; document.getElementById('lobbyScreen').classList.remove('hidden'); } else alert("PIN SALAH"); };
         
         window.loadBranch = (code) => {
             curBranchData = BRANCHES[code];
+            isKC = (code === 'KC');
             document.documentElement.style.setProperty('--theme-color', curBranchData.color);
             document.getElementById('lblBranchTitle').innerText = curBranchData.name;
+            
+            // Tampilkan/Sembunyikan Opsi S4 & S5 di select box
+            const kcOnlyElements = document.querySelectorAll('.kc-only');
+            kcOnlyElements.forEach(el => {
+                if(isKC) el.classList.remove('hidden');
+                else el.classList.add('hidden');
+            });
+
+            // Update Force Input Buttons (3 vs 5 slot)
+            let forceBtns = `<button onclick="manualAdd('queue')" class="btn-green" style="flex:2;">+ ANTRIAN</button>`;
+            for(let i=0; i<curBranchData.maxSlot; i++) {
+                forceBtns += `<button onclick="manualAdd(${i})" class="btn-gold" style="flex:1;">S${i+1}</button>`;
+            }
+            document.getElementById('forceInputBtns').innerHTML = forceBtns;
+
             if(curApp) curApp = null;
             try {
                 curApp = initializeApp(curBranchData.cfg, code + "_" + Date.now());
@@ -216,7 +242,12 @@
             unsub = onSnapshot(mainRef, (snap) => {
                 if(!snap.exists()) return;
                 const d = snap.data(); cachedData = d;
-                renderSlots(d.chargingSlots || []);
+                
+                // Ensure slot array length matches maxSlot
+                let slots = d.chargingSlots || [];
+                while(slots.length < curBranchData.maxSlot) slots.push(null);
+
+                renderSlots(slots);
                 renderQueueTable(d.waitingQueue || []);
                 renderSecurity(d.activeQrCode);
             });
@@ -226,6 +257,19 @@
             });
         }
 
+        // --- SISTEM BADGE DINAMIS ---
+        function getBadgeClass(role) {
+            if(!role || role === "GUEST") return "bg-guest";
+            const r = role.toUpperCase();
+            
+            if (r === "MEMBER" || r.includes("KELUARGA")) return "bg-member";
+            if (r.includes("KETUM") || r.includes("WAKETUM") || r.includes("PEMBINA")) return "bg-board";
+            if (r.includes("KORLAP") || r.includes("SATGAS")) return "bg-red";
+            if (r.includes("HUMAS")) return "bg-cyan";
+            
+            return "bg-custom"; // Default buat custom badge biar ngikutin warna tema
+        }
+
         // === RENDER UI ===
         function renderSlots(slots) {
             const el = document.getElementById('slotGridArea'); el.innerHTML = '';
@@ -233,11 +277,16 @@
                 const s = slots[i];
                 const div = document.createElement('div'); div.className = 'slot-item';
                 if(s) {
+                    let roleText = s.role || "GUEST";
+                    if(roleText === "GUEST") roleText = "NON-MEMBER";
+                    let bClass = getBadgeClass(roleText);
+
                     div.style.borderColor = "var(--theme-color)";
                     div.innerHTML = `<div style="font-size:16px; font-weight:bold; color:var(--theme-color)">${s.plat}</div><div>${s.userName}</div>
+                    <div><span class="badge-style ${bClass}">${roleText}</span></div>
                     <div style="display:flex; gap:2px; margin-top:auto;">
                         <button onclick="window.editData('slot', ${i})" class="btn-blue btn-mini" style="width:50%;">EDIT</button>
-                        <button onclick="kickToQueue(${i})" class="btn-orange btn-mini" style="width:50%;">TURUN</button>
+                        <button onclick="kickToQueue(${i})" class="btn-orange btn-mini" style="width:50%; background:#d80; color:#fff;">TURUN</button>
                     </div>
                     <button onclick="forceEmptySlot(${i})" class="btn-red btn-mini" style="width:100%; margin-top:2px;">KOSONGKAN</button>`;
                 } else {
@@ -253,13 +302,16 @@
             if(queue.length===0) h+=`<tr><td colspan="4" style="text-align:center; padding:10px; color:#555;">TIDAK ADA ANTRIAN</td></tr>`;
             
             queue.forEach((q, idx) => {
-                // TOMBOL PINDAH S1, S2, S3
                 let moveBtns = '';
                 for(let i=0; i<curBranchData.maxSlot; i++) { moveBtns += `<button class="btn-gold btn-mini" onclick="forceToSlot('${q.plat}', ${i})">S${i+1}</button> `; }
                 
+                let roleText = q.role || "GUEST";
+                if(roleText === "GUEST") roleText = "NON-MEMBER";
+                let bClass = getBadgeClass(roleText);
+
                 h += `<tr>
                     <td style="color:var(--theme-color); font-weight:bold;">${q.qNo}</td>
-                    <td><b>${q.plat}</b><br><span style="color:#888; font-size:10px;">${q.userName}</span> <span style="font-size:9px; border:1px solid #444; padding:0 3px;">${q.role||'GUEST'}</span></td>
+                    <td><b>${q.plat}</b><br><span style="color:#888; font-size:10px;">${q.userName}</span> <span class="badge-style ${bClass}">${roleText}</span></td>
                     <td>${moveBtns}</td>
                     <td>
                         <button class="btn-blue btn-mini" onclick="switchQueue(${idx}, -1)">⬆</button>
@@ -280,7 +332,6 @@
             const p = document.getElementById('newPlat').value.trim().toUpperCase();
             const n = document.getElementById('newNama').value.trim().toUpperCase();
             
-            // Jika targetnya slot dan input kosong, tanya manual
             if (typeof target === 'number' && !p) {
                 const promptP = prompt(`MASUKKAN PLAT UNTUK SLOT ${target+1}:`);
                 if(!promptP) return;
@@ -291,7 +342,15 @@
                     const d = (await t.get(mainRef)).data();
                     if(!d.chargingSlots) d.chargingSlots = Array(curBranchData.maxSlot).fill(null);
                     if(d.chargingSlots[target]) throw "Slot Penuh!";
-                    d.chargingSlots[target] = { plat:promptP.toUpperCase(), userName:(promptN||"ADMIN").toUpperCase(), role:"ADMIN_PUSH", startTime:Date.now(), qNo:"ADM", entryTime:Date.now() };
+                    
+                    // Cek role DB biar valid
+                    let userRole = "GUEST";
+                    try {
+                        let m = await t.get(doc(db, "members", promptP.replace(/[^A-Z0-9]/g, '')));
+                        if(m.exists()) userRole = m.data().role || "MEMBER";
+                    } catch(e) {}
+
+                    d.chargingSlots[target] = { plat:promptP.toUpperCase(), userName:(promptN||"ADMIN").toUpperCase(), role:userRole, startTime:Date.now(), qNo:"ADM", entryTime:Date.now() };
                     t.update(mainRef, { chargingSlots: d.chargingSlots });
                     addLog("SUPERADMIN", "MANUAL_INPUT_SLOT", `Forced ${promptP} to S${target+1}`);
                 }).catch(e=>alert(e));
@@ -305,10 +364,15 @@
                 const d = (await t.get(mainRef)).data();
                 if(!d.chargingSlots) d.chargingSlots = Array(curBranchData.maxSlot).fill(null);
                 
-                // Cek duplikat
                 if([...d.chargingSlots, ...d.waitingQueue].some(u => u && u.plat === p)) throw "User sudah ada!";
 
-                const u = { plat:p, userName:n||"ADMIN", role:"ADMIN_PUSH", startTime:Date.now(), qNo:(d.lastTicket||0)+1, entryTime:Date.now() };
+                let userRole = "GUEST";
+                try {
+                    let m = await t.get(doc(db, "members", p.replace(/[^A-Z0-9]/g, '')));
+                    if(m.exists()) userRole = m.data().role || "MEMBER";
+                } catch(e) {}
+
+                const u = { plat:p, userName:n||"ADMIN", role:userRole, startTime:Date.now(), qNo:(d.lastTicket||0)+1, entryTime:Date.now() };
                 
                 if(target === 'queue') { 
                     d.waitingQueue.push(u); d.lastTicket = u.qNo; 
@@ -329,7 +393,7 @@
                 if(!u) throw "Slot Kosong";
                 
                 d.chargingSlots[slotIdx] = null;
-                d.waitingQueue.unshift(u); // Masukkan ke paling depan antrian
+                d.waitingQueue.unshift(u); 
                 
                 t.update(ref, { chargingSlots: d.chargingSlots, waitingQueue: d.waitingQueue });
                 addLog("SUPERADMIN", "DOWN_TO_QUEUE", `${u.plat} S${slotIdx+1} -> Q`);
@@ -413,7 +477,6 @@
             }
         };
 
-        // SNAPSHOT RECOVERY
         window.checkSnapshot = async () => {
             const s = await getDoc(doc(db, "antrian", "snapshot"));
             if(!s.exists()) return alert("Tidak ada backup.");
@@ -432,7 +495,6 @@
             }).then(() => { alert("RESTORED!"); document.getElementById('recoveryPanel').style.display='none'; });
         };
         
-        // CUSTOM ROLE CHECK
         window.checkCustomRole = (el) => {
             if(el.value === 'CUSTOM') {
                 const c = prompt("MASUKKAN NAMA JABATAN CUSTOM:");
@@ -443,6 +505,7 @@
             }
         }
 
+        // PENAMBAHAN BADGE MANUAL
         window.setJabatan = () => {
             const p = document.getElementById('rolePlat').value.toUpperCase(); 
             let r = document.getElementById('roleSelect').value;
@@ -455,10 +518,10 @@
             setDoc(doc(db, "members", cleanP), {plat:p, role:r, verified:true}, {merge:true});
             runTransaction(db, async(t)=>{
                 const ref=doc(db,"antrian","utama"); const d=(await t.get(ref)).data(); let upd=false;
-                const newQ=(d.waitingQueue||[]).map(q=>{if(q.plat.includes(cleanP)){upd=true; return {...q, role:r}} return q});
-                const newS=(d.chargingSlots||[]).map(s=>{if(s && s.plat.includes(cleanP)){upd=true; return {...s, role:r}} return s});
+                const newQ=(d.waitingQueue||[]).map(q=>{if(q.plat.replace(/[^A-Z0-9]/g,'') === cleanP){upd=true; return {...q, role:r}} return q});
+                const newS=(d.chargingSlots||[]).map(s=>{if(s && s.plat.replace(/[^A-Z0-9]/g,'') === cleanP){upd=true; return {...s, role:r}} return s});
                 if(upd) t.update(ref, {waitingQueue:newQ, chargingSlots:newS});
-            }).then(()=>{alert("OK: " + r); document.getElementById('rolePlat').value='';});
+            }).then(()=>{alert("Role berhasil di set jadi: " + r); document.getElementById('rolePlat').value='';});
         };
 
         window.setActiveQR = (m) => {
@@ -466,12 +529,20 @@
             if(confirm("Ubah Security ke "+v+"?")) updateDoc(doc(db,"antrian","utama"), {activeQrCode:v});
         };
         
-        window.resetDaily = () => { if(confirm("Reset Nomor jadi 1?")) updateDoc(doc(db,"antrian","utama"), {waitingQueue:[], lastTicket:0}); };
+        window.resetDaily = () => { 
+            runTransaction(db, async(t) => {
+                const d = (await t.get(doc(db,"antrian","utama"))).data();
+                let queue = d.waitingQueue || [];
+                queue.forEach((q, index) => { q.qNo = index + 1; });
+                t.update(doc(db,"antrian","utama"), { waitingQueue: queue, lastTicket: queue.length });
+                addLog("ADMIN", "RESET_NUMBER", `Re-indexed ${queue.length} users`);
+            }).then(() => alert("Nomor berhasil diurutkan ulang dari 1!")).catch(e => alert("Gagal: " + e));
+        };
+        
         window.resetTotal = () => { if(confirm("WIPE ALL DATA?")) setDoc(doc(db,"antrian","utama"), {chargingSlots:Array(curBranchData.maxSlot).fill(null), waitingQueue:[], lastTicket:0}); };
         
         function addLog(actor, act, det) { addDoc(collection(db, "activityLog"), { action: act, details: det, actor: actor, timestamp: new Date() }); }
 
-        // EXPOSE TO WINDOW
         Object.assign(window, {
             manualAdd, moveSlotUser, switchQueue, forceToSlot, editData, checkSnapshot, executeRestore, setJabatan, setActiveQR, resetDaily, resetTotal, kickToQueue, forceEmptySlot, checkCustomRole
         });
